@@ -4,6 +4,9 @@ import {
 	PageHeaderDescription,
 	PageHeaderHeading,
 } from "@/components/page-header";
+import { Separator } from "@/components/ui/separator";
+
+import GamesList from "./games/_components/games-list";
 
 export default function Home() {
 	return (
@@ -16,6 +19,8 @@ export default function Home() {
 				</PageHeaderDescription>
 				<PageActions></PageActions>
 			</PageHeader>
+			<Separator className="mx-auto -mt-4 mb-4 max-w-[980px]" />
+			<GamesList />
 		</div>
 	);
 }
