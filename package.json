@@ -1,41 +1,49 @@
 {
-  "name": "games",
-  "version": "0.1.0",
-  "private": true,
-  "scripts": {
-    "dev": "concurrently \"npm run dev:partykit\" \"npm run dev:next\" --kill-others",
-    "dev:next": "next dev --turbo",
-    "dev:partykit": "partykit dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
-    "lint:fix": "next lint --fix"
-  },
-  "dependencies": {
-    "class-variance-authority": "^0.7.0",
-    "clsx": "^2.1.1",
-    "lucide-react": "^0.378.0",
-    "next": "14.2.3",
-    "partysocket": "1.0.1",
-    "react": "^18",
-    "react-dom": "^18",
-    "tailwind-merge": "^2.3.0",
-    "tailwindcss-animate": "^1.0.7"
-  },
-  "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "concurrently": "^8.2.2",
-    "eslint": "^8",
-    "eslint-config-next": "14.2.3",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-prettier": "^5.1.3",
-    "partykit": "0.0.104",
-    "postcss": "^8",
-    "prettier": "^3.2.5",
-    "prettier-plugin-tailwindcss": "^0.5.14",
-    "tailwindcss": "^3.4.1",
-    "typescript": "^5"
-  }
+	"name": "games",
+	"version": "0.1.0",
+	"private": true,
+	"scripts": {
+		"dev": "concurrently \"npm run dev:partykit\" \"npm run dev:next\" --kill-others",
+		"dev:next": "next dev",
+		"dev:partykit": "partykit dev",
+		"build": "next build",
+		"start": "next start",
+		"lint:ci": "next lint --max-warnings 0 --report-unused-disable-directives-severity error",
+		"lint:fix": "npm run lint:ci -- --fix",
+		"format:ci": "npx prettier . --check",
+		"format:fix": "npx prettier . --write",
+		"local:fixall": "npm run lint:fix && npm run format:fix"
+	},
+	"dependencies": {
+		"class-variance-authority": "^0.7.0",
+		"clsx": "^2.1.1",
+		"lucide-react": "^0.378.0",
+		"next": "14.2.3",
+		"partysocket": "1.0.1",
+		"react": "^18",
+		"react-dom": "^18",
+		"tailwind-merge": "^2.3.0",
+		"tailwindcss-animate": "^1.0.7"
+	},
+	"devDependencies": {
+		"@types/node": "^20",
+		"@types/react": "^18",
+		"@types/react-dom": "^18",
+		"concurrently": "^8.2.2",
+		"eslint": "^8",
+		"eslint-config-next": "14.2.3",
+		"eslint-plugin-jsonc": "^2.15.1",
+		"eslint-plugin-react": "^7.34.1",
+		"eslint-plugin-react-hooks": "^4.6.2",
+		"eslint-plugin-simple-import-sort": "^12.1.0",
+		"eslint-plugin-typescript-sort-keys": "^3.2.0",
+		"jsonc-eslint-parser": "^2.4.0",
+		"partykit": "0.0.104",
+		"postcss": "^8",
+		"prettier": "^3.2.5",
+		"prettier-plugin-tailwindcss": "^0.5.14",
+		"tailwindcss": "^3.4.1",
+		"typescript": "^5",
+		"typescript-eslint": "^7.8.0"
+	}
 }
