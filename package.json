@@ -3,16 +3,20 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "concurrently \"npm run dev:partykit\" \"npm run dev:next\" --kill-others",
+    "dev:next": "next dev --turbo",
+    "dev:partykit": "partykit dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "lint:fix": "next lint --fix"
   },
   "dependencies": {
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.378.0",
     "next": "14.2.3",
+    "partysocket": "1.0.1",
     "react": "^18",
     "react-dom": "^18",
     "tailwind-merge": "^2.3.0",
@@ -22,9 +26,13 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "concurrently": "^8.2.2",
     "eslint": "^8",
     "eslint-config-next": "14.2.3",
+    "eslint-config-prettier": "^9.1.0",
+    "partykit": "0.0.104",
     "postcss": "^8",
+    "prettier": "^3.2.5",
     "tailwindcss": "^3.4.1",
     "typescript": "^5"
   }
