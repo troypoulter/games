@@ -36,7 +36,6 @@ function CreateGameButton() {
 }
 
 export default function CreateTicTacToeGameForm() {
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [state, formAction] = useFormState(createTicTacToeGame, {
 		message: "",
 	});

@@ -40,7 +40,7 @@ export default function GamesList() {
 		<div className="grid grid-cols-1 gap-4 p-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
 			{games.map((game) => (
 				<Link href={game.href} key={game.href} passHref>
-					<Card className="hover:animate-hover-tada transition-colors duration-300 hover:scale-105 hover:bg-blue-100 sm:col-span-2">
+					<Card className="transition-colors duration-300 hover:scale-105 hover:animate-hover-tada hover:bg-blue-100 sm:col-span-2">
 						<CardHeader className="pb-3">
 							<CardTitle>{game.label}</CardTitle>
 							<CardDescription className="max-w-lg text-balance leading-relaxed">
