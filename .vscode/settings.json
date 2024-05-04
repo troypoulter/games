@@ -4,5 +4,13 @@
 	"editor.codeActionsOnSave": {
 		"source.fixAll.eslint": "always"
 	},
-	"typescript.tsdk": "node_modules/typescript/lib"
+	"typescript.tsdk": "node_modules/typescript/lib",
+	"workbench.editor.customLabels.patterns": {
+		// Next JS
+		"**/src/app/**/page.tsx": "${dirname} - Page",
+		"**/src/app/**/index.tsx": "${dirname} - Index",
+		"**/src/app/**/layout.tsx": "${dirname} - Layout",
+		"**/src/app/**/template.tsx": "${dirname} - Template",
+		"**/src/components/**/index.tsx": "${dirname} - Component"
+	}
 }

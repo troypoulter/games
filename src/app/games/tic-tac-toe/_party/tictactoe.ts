@@ -1,21 +1,38 @@
 import type * as Party from "partykit/server";
+import { z } from "zod";
 
-import { GameState } from "../_types/game-state";
+import { createStandardWebhookMessage } from "@/lib/standard-webhook";
+
+import {
+	BoardSchema,
+	GameState,
+	GameStateSchema,
+	PlayerSchema,
+} from "../_types/game-state";
+
+const GAMESTATE_KEY = "gameState";
 
 export default class TicTacToeServer implements Party.Server {
 	constructor(readonly room: Party.Room) {}
 
 	async onRequest(req: Party.Request) {
 		if (req.method === "POST") {
-			let gameState = await this.room.storage.get<GameState>("gameState");
+			let gameState = await this.room.storage.get<GameState>(GAMESTATE_KEY);
 
 			if (!gameState) {
+				const initialBoard: z.infer<typeof BoardSchema> = Array.from(
+					{ length: 3 },
+					() => Array.from({ length: 3 }, () => null),
+				);
+
 				gameState = {
 					hasGameStarted: false,
 					players: {},
+					board: initialBoard,
+					currentPlayer: null,
 				};
 
-				await this.room.storage.put("gameState", gameState);
+				await this.room.storage.put(GAMESTATE_KEY, gameState);
 
 				return new Response("New game room created.", { status: 200 });
 			} else {
@@ -27,7 +44,7 @@ export default class TicTacToeServer implements Party.Server {
 			}
 		}
 
-		const gameState = await this.room.storage.get<GameState>("gameState");
+		const gameState = await this.room.storage.get<GameState>(GAMESTATE_KEY);
 		if (gameState) {
 			console.log("Returning current game state.");
 			return new Response(JSON.stringify(gameState), {
@@ -42,17 +59,46 @@ export default class TicTacToeServer implements Party.Server {
 		});
 	}
 
-	onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
-		// A websocket just connected!
-		console.log(
-			`Connected:
-  id: ${conn.id}
-  room: ${this.room.id}
-  url: ${new URL(ctx.request.url).pathname}`,
-		);
+	async onConnect(connection: Party.Connection) {
+		const gameState = await this.room.storage.get<GameState>(GAMESTATE_KEY);
+		if (!gameState) return; // Exit if game state is not found
 
-		// let's send a message to the connection
-		conn.send("hello from server");
+		if (
+			!gameState.hasGameStarted &&
+			Object.keys(gameState.players).length < 2
+		) {
+			const newPlayer = {
+				id: connection.id,
+				name: `Player ${Object.keys(gameState.players).length + 1}`,
+			};
+
+			gameState.players[connection.id] = PlayerSchema.parse(newPlayer);
+
+			// Set the current player if it's the first player joining
+			if (!gameState.currentPlayer) {
+				gameState.currentPlayer = newPlayer;
+			}
+
+			await this.room.storage.put(GAMESTATE_KEY, gameState);
+
+			this.room.broadcast(
+				createStandardWebhookMessage(
+					"tictactoe.player.connected",
+					gameState,
+					GameStateSchema,
+				),
+			);
+		} else {
+			connection.send(
+				createStandardWebhookMessage(
+					"tictactoe.game.full",
+					undefined,
+					undefined,
+				),
+			);
+			connection.close();
+			return;
+		}
 	}
 
 	onMessage(message: string, sender: Party.Connection) {
