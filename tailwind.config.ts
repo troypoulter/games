@@ -67,10 +67,46 @@ const config = {
 					from: { height: "var(--radix-accordion-content-height)" },
 					to: { height: "0" },
 				},
+				"hover-tada": {
+					"0%": {
+						transform: "scale(1)",
+					},
+					"10%": {
+						transform: "scale(0.95) rotate(-3deg)",
+					},
+					"20%": {
+						transform: "scale(0.95) rotate(-3deg)",
+					},
+					"30%": {
+						transform: "scale(1.05) rotate(3deg)",
+					},
+					"40%": {
+						transform: "scale(1.05) rotate(-3deg)",
+					},
+					"50%": {
+						transform: "scale(1.05) rotate(3deg)",
+					},
+					"60%": {
+						transform: "scale(1.05) rotate(-3deg)",
+					},
+					"70%": {
+						transform: "scale(1.05) rotate(3deg)",
+					},
+					"80%": {
+						transform: "scale(1.05) rotate(-3deg)",
+					},
+					"90%": {
+						transform: "scale(1.05) rotate(3deg)",
+					},
+					"100%": {
+						transform: "scale(1.05) rotate(0)",
+					},
+				},
 			},
 			animation: {
 				"accordion-down": "accordion-down 0.2s ease-out",
 				"accordion-up": "accordion-up 0.2s ease-out",
+				"hover-tada": "hover-tada 1s ease-in-out",
 			},
 		},
 	},
