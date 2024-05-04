@@ -32,3 +32,18 @@ export function createStandardWebhookMessage<T extends z.ZodTypeAny>(
 
 	return JSON.stringify(message);
 }
+
+export function parseStandardWebhookMessage<T extends z.ZodTypeAny>(
+	jsonString: string,
+	dataSchema: T | undefined,
+) {
+	const MessageSchema = StandardWebhookMessageSchema(dataSchema);
+	const result = MessageSchema.safeParse(JSON.parse(jsonString));
+
+	if (result.success) {
+		return result.data;
+	} else {
+		console.error("Failed to parse webhook message:", result.error.flatten());
+		return result.error;
+	}
+}

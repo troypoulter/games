@@ -1,7 +1,10 @@
 import type * as Party from "partykit/server";
 import { z } from "zod";
 
-import { createStandardWebhookMessage } from "@/lib/standard-webhook";
+import {
+	createStandardWebhookMessage,
+	parseStandardWebhookMessage,
+} from "@/lib/standard-webhook";
 
 import {
 	BoardSchema,
@@ -9,6 +12,7 @@ import {
 	GameStateSchema,
 	PlayerSchema,
 } from "../_types/game-state";
+import { MoveDataSchema } from "../_types/move-data";
 
 const GAMESTATE_KEY = "gameState";
 
@@ -30,6 +34,8 @@ export default class TicTacToeServer implements Party.Server {
 					players: {},
 					board: initialBoard,
 					currentPlayer: null,
+					winner: null,
+					isDraw: null,
 				};
 
 				await this.room.storage.put(GAMESTATE_KEY, gameState);
@@ -67,12 +73,13 @@ export default class TicTacToeServer implements Party.Server {
 			!gameState.hasGameStarted &&
 			Object.keys(gameState.players).length < 2
 		) {
-			const newPlayer = {
+			const newPlayer = PlayerSchema.parse({
 				id: connection.id,
 				name: `Player ${Object.keys(gameState.players).length + 1}`,
-			};
+				mark: Object.keys(gameState.players).length === 0 ? "X" : "O",
+			});
 
-			gameState.players[connection.id] = PlayerSchema.parse(newPlayer);
+			gameState.players[connection.id] = newPlayer;
 
 			// Set the current player if it's the first player joining
 			if (!gameState.currentPlayer) {
@@ -101,14 +108,63 @@ export default class TicTacToeServer implements Party.Server {
 		}
 	}
 
-	onMessage(message: string, sender: Party.Connection) {
-		// let's log the message
-		console.log(`connection ${sender.id} sent message: ${message}`);
-		// as well as broadcast it to all the other connections in the room...
+	async onMessage(message: string, sender: Party.Connection) {
+		// Parse and validate the message
+		const parseResult = parseStandardWebhookMessage(message, z.unknown());
+		if (parseResult instanceof z.ZodError) {
+			console.error("Failed to validate message:", parseResult.flatten());
+			sender.send("Error in message format.");
+			return;
+		}
+
+		// Handle the message based on its type
+		switch (parseResult.type) {
+			case "tictactoe.move.made":
+				await this.handleMove(parseResult.data, sender);
+				break;
+			default:
+				console.log(
+					"Received an unsupported type of message:",
+					parseResult.type,
+				);
+				break;
+		}
+	}
+
+	async handleMove(data: unknown, sender: Party.Connection) {
+		// Validate the move data
+		const moveResult = MoveDataSchema.safeParse(data);
+		if (!moveResult.success) {
+			console.error("Invalid move data:", moveResult.error.flatten());
+			sender.send("Invalid move data.");
+			return;
+		}
+
+		// Execute the move
+		const { row, col } = moveResult.data;
+		const gameState = await this.room.storage.get<GameState>(GAMESTATE_KEY);
+		if (!gameState || gameState.board[row][col] !== null) {
+			sender.send("Invalid move or game state.");
+			return;
+		}
+
+		if (!gameState.currentPlayer) {
+			sender.send("Invalid move or game state.");
+			return;
+		}
+
+		// Update the board and check for game over or switch player
+		gameState.board[row][col] = gameState.currentPlayer.mark;
+		// Simplified logic, consider game over check and switching current player
+		await this.room.storage.put(GAMESTATE_KEY, gameState);
+
+		// Broadcast the updated game state to all clients
 		this.room.broadcast(
-			`${sender.id}: ${message}`,
-			// ...except for the connection it came from
-			[sender.id],
+			createStandardWebhookMessage(
+				"tictactoe.game.update",
+				gameState,
+				GameStateSchema,
+			),
 		);
 	}
 }

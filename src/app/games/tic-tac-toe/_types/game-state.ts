@@ -9,6 +9,7 @@ export const BoardSchema = z.array(
 export const PlayerSchema = z.object({
 	id: z.string(),
 	name: z.string(),
+	mark: PlayerMarkSchema,
 });
 
 export const GameStateSchema = z.object({
@@ -16,6 +17,8 @@ export const GameStateSchema = z.object({
 	players: z.record(z.string(), PlayerSchema),
 	board: BoardSchema,
 	currentPlayer: PlayerSchema.nullable(),
+	winner: PlayerSchema.nullable(),
+	isDraw: z.boolean().nullable(),
 });
 
 export type GameState = z.infer<typeof GameStateSchema>;
