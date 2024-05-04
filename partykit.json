@@ -1,7 +1,7 @@
 {
 	"$schema": "https://www.partykit.io/schema.json",
 	"name": "games-party",
-	"main": "src/party/index.ts",
+	"main": "src/app/games/tic-tac-toe/_party/tictactoe.ts",
 	"parties": {
 		"tictactoe": "src/app/games/tic-tac-toe/_party/tictactoe.ts"
 	},
