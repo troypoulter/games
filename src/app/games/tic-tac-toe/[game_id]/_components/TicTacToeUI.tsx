@@ -66,27 +66,27 @@ export default function TicTacToeUI({ gameId }: { gameId: string }) {
 		}
 	};
 
-	console.log(board);
-
 	if (!board) {
 		return <div>Loading...</div>;
 	}
 
 	return (
-		<div className="grid grid-cols-3 gap-2 p-4">
-			{board.map((row, rowIndex) =>
-				row.map((cell, colIndex) => (
-					<div
-						key={`${rowIndex}-${colIndex}`}
-						className="flex h-20 w-20 cursor-pointer items-center justify-center bg-gray-200 text-2xl"
-						onClick={() => handleCellClick(rowIndex, colIndex)}
-					>
-						{cell}
-					</div>
-				)),
-			)}
-			<div className="col-span-3 mt-4 text-center">
-				Current turn: {currentPlayer}
+		<div className="flex items-center justify-center">
+			<div className="grid grid-cols-3 gap-2">
+				{board.map((row, rowIndex) =>
+					row.map((cell, colIndex) => (
+						<div
+							key={`${rowIndex}-${colIndex}`}
+							className="flex h-20 w-20 cursor-pointer items-center justify-center bg-gray-200 text-2xl hover:bg-gray-300"
+							onClick={() => handleCellClick(rowIndex, colIndex)}
+						>
+							{cell}
+						</div>
+					)),
+				)}
+				<div className="col-span-3 mt-4 text-center">
+					Current turn: {currentPlayer}
+				</div>
 			</div>
 		</div>
 	);
