@@ -14,7 +14,7 @@ export const StandardWebhookMessageSchema = <T extends z.ZodTypeAny>(
 ) =>
 	z.object({
 		type: WebhookEventType,
-		timestamp: z.date(),
+		// timestamp: z.date(),
 		data: dataSchema ? dataSchema.optional() : z.undefined(),
 	});
 
@@ -26,7 +26,7 @@ export function createStandardWebhookMessage<T extends z.ZodTypeAny>(
 	const MessageSchema = StandardWebhookMessageSchema(dataSchema);
 	const message = MessageSchema.parse({
 		type: type,
-		timestamp: new Date(),
+		// timestamp: new Date(),
 		data: data,
 	});
 
