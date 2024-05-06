@@ -15,7 +15,6 @@ export const PlayerSchema = z.object({
 });
 
 export const GameStateSchema = z.object({
-	hasGameStarted: z.boolean(),
 	players: z.record(z.string(), PlayerSchema),
 	board: BoardSchema,
 	currentPlayer: PlayerSchema.nullable(),

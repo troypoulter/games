@@ -10,52 +10,59 @@ import {
 	parseStandardWebhookMessage,
 } from "@/lib/standard-webhook";
 
-import { BoardType, GameStateSchema } from "../../_types/game-state";
+import { GameState, GameStateSchema } from "../../_types/game-state";
 import { MoveDataSchema } from "../../_types/move-data";
 
 export default function TicTacToeUI({ gameId }: { gameId: string }) {
-	const [board, setBoard] = useState<BoardType>();
-	const [currentPlayer, setCurrentPlayer] = useState<"X" | "O" | undefined>(
-		undefined,
-	);
+	const [gameState, setGameState] = useState<GameState>();
+	const [isGameFull, setIsGameFull] = useState(false);
 
 	const socket = usePartySocket({
 		host: PARTYKIT_HOST,
 		room: gameId,
 		party: "tictactoe",
 		onMessage: (message) => {
-			console.log("Received message:", message.data);
 			const webhookMessage = parseStandardWebhookMessage(
 				message.data as string,
 				z.unknown(),
 			);
+
 			if (webhookMessage instanceof z.ZodError) {
 				console.error("Failed to validate message:", webhookMessage.flatten());
 				return;
 			}
 
 			if (webhookMessage.type === "tictactoe.game.full") {
+				setIsGameFull(true);
 				socket.close();
 				return;
 			}
 
-			if (
-				webhookMessage.type === "tictactoe.move.made" ||
-				webhookMessage.type === "tictactoe.game.update" ||
-				webhookMessage.type === "tictactoe.player.connected" ||
-				webhookMessage.type === "tictactoe.game.finished"
-			) {
-				const gameState = GameStateSchema.parse(webhookMessage.data);
-				setBoard(gameState.board);
-				setCurrentPlayer(gameState.currentPlayer?.mark);
+			setIsGameFull(false);
+
+			if (webhookMessage.type === "tictactoe.game.update") {
+				const webhookGameState = parseStandardWebhookMessage(
+					message.data as string,
+					GameStateSchema,
+				);
+
+				if (webhookGameState instanceof z.ZodError) {
+					console.error(
+						"Failed to validate message:",
+						webhookGameState.flatten(),
+					);
+					return;
+				}
+
+				setGameState(webhookGameState.data);
 			}
 		},
 	});
 
 	const handleCellClick = (row: number, col: number) => {
-		if (!board) return;
+		if (!gameState?.board) return;
 
-		if (board[row][col] === null && currentPlayer) {
+		if (gameState.board[row][col] === null) {
 			const move = MoveDataSchema.parse({ row, col });
 			const moveMessage = createStandardWebhookMessage(
 				"tictactoe.move.made",
@@ -66,14 +73,18 @@ export default function TicTacToeUI({ gameId }: { gameId: string }) {
 		}
 	};
 
-	if (!board) {
+	if (isGameFull) {
+		return <div>Game is full</div>;
+	}
+
+	if (!gameState) {
 		return <div>Loading...</div>;
 	}
 
 	return (
 		<div className="flex items-center justify-center">
 			<div className="grid grid-cols-3 gap-2">
-				{board.map((row, rowIndex) =>
+				{gameState.board.map((row, rowIndex) =>
 					row.map((cell, colIndex) => (
 						<div
 							key={`${rowIndex}-${colIndex}`}
@@ -85,7 +96,7 @@ export default function TicTacToeUI({ gameId }: { gameId: string }) {
 					)),
 				)}
 				<div className="col-span-3 mt-4 text-center">
-					Current turn: {currentPlayer}
+					Current turn: {gameState.currentPlayer?.mark}
 				</div>
 			</div>
 		</div>
