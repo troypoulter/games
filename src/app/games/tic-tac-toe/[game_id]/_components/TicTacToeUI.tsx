@@ -13,7 +13,13 @@ import {
 import { GameState, GameStateSchema } from "../../_types/game-state";
 import { MoveDataSchema } from "../../_types/move-data";
 
-export default function TicTacToeUI({ gameId }: { gameId: string }) {
+export default function TicTacToeUI({
+	gameId,
+	connectionId,
+}: {
+	connectionId?: string;
+	gameId: string;
+}) {
 	const [gameState, setGameState] = useState<GameState>();
 	const [isGameFull, setIsGameFull] = useState(false);
 
@@ -21,6 +27,7 @@ export default function TicTacToeUI({ gameId }: { gameId: string }) {
 		host: PARTYKIT_HOST,
 		room: gameId,
 		party: "tictactoe",
+		id: connectionId !== undefined ? connectionId : undefined,
 		onMessage: (message) => {
 			const webhookMessage = parseStandardWebhookMessage(
 				message.data as string,
@@ -82,7 +89,7 @@ export default function TicTacToeUI({ gameId }: { gameId: string }) {
 	}
 
 	return (
-		<div className="flex items-center justify-center">
+		<div className="flex flex-col items-center justify-center">
 			<div className="grid grid-cols-3 gap-2">
 				{gameState.board.map((row, rowIndex) =>
 					row.map((cell, colIndex) => (
@@ -95,10 +102,14 @@ export default function TicTacToeUI({ gameId }: { gameId: string }) {
 						</div>
 					)),
 				)}
-				<div className="col-span-3 mt-4 text-center">
-					Current turn: {gameState.currentPlayer?.mark}
-				</div>
 			</div>
+			<div className="mt-4 text-center">
+				Current turn: {gameState.currentPlayer?.mark}
+			</div>
+			{gameState.winner && (
+				<div className="mt-4 text-center">Winner: {gameState.winner.mark}</div>
+			)}
+			{gameState.isDraw && <div className="mt-4 text-center">Draw</div>}
 		</div>
 	);
 }
