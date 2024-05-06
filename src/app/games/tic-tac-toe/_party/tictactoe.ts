@@ -129,6 +129,9 @@ export default class TicTacToeServer implements Party.Server {
 			case "tictactoe.move.made":
 				await this.handleMove(parseResult.data, sender);
 				break;
+			case "tictactoe.game.newGame":
+				await this.newGame();
+				break;
 			default:
 				console.log(
 					"Received an unsupported type of message:",
@@ -245,6 +248,31 @@ export default class TicTacToeServer implements Party.Server {
 
 		return winConditions.some((line) =>
 			line.every((cell) => cell === playerMark),
+		);
+	}
+
+	private async newGame() {
+		const gameState = await this.room.storage.get<GameState>(GAMESTATE_KEY);
+		if (!gameState) return; // Exit if game state is not found
+
+		// Only allow creating a new game if the game has finished (either a draw or there is a winner).
+		if (!gameState.isDraw && !gameState.winner) return;
+
+		const initialBoard: BoardType = Array.from({ length: 3 }, () =>
+			Array.from({ length: 3 }, () => null),
+		);
+
+		gameState.isDraw = null;
+		gameState.winner = null;
+		gameState.board = initialBoard;
+
+		await this.room.storage.put(GAMESTATE_KEY, gameState);
+		this.room.broadcast(
+			createStandardWebhookMessage(
+				"tictactoe.game.update",
+				gameState,
+				GameStateSchema,
+			),
 		);
 	}
 }

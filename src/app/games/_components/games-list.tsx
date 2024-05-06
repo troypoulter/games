@@ -13,26 +13,6 @@ const games = [
 		description: "Play Tic Tac Toe with friends or against a robot!",
 		href: "/games/tic-tac-toe",
 	},
-	{
-		label: "Tic Tac Toe",
-		description: "Play Tic Tac Toe with friends or against a robot!",
-		href: "/games/tic-tac-toe",
-	},
-	{
-		label: "Tic Tac Toe",
-		description: "Play Tic Tac Toe with friends or against a robot!",
-		href: "/games/tic-tac-toe",
-	},
-	{
-		label: "Tic Tac Toe",
-		description: "Play Tic Tac Toe with friends or against a robot!",
-		href: "/games/tic-tac-toe",
-	},
-	{
-		label: "Tic Tac Toe",
-		description: "Play Tic Tac Toe with friends or against a robot!",
-		href: "/games/tic-tac-toe",
-	},
 ];
 
 export default function GamesList() {

@@ -1,9 +1,11 @@
 "use client";
 
+import { Play } from "lucide-react";
 import usePartySocket from "partysocket/react";
 import { useState } from "react";
 import { z } from "zod";
 
+import { Button } from "@/components/ui/button";
 import { PARTYKIT_HOST } from "@/lib/env";
 import {
 	createStandardWebhookMessage,
@@ -80,6 +82,16 @@ export default function TicTacToeUI({
 		}
 	};
 
+	const handleNewGame = () => {
+		socket.send(
+			createStandardWebhookMessage(
+				"tictactoe.game.newGame",
+				undefined,
+				undefined,
+			),
+		);
+	};
+
 	if (isGameFull) {
 		return <div>Game is full</div>;
 	}
@@ -110,6 +122,15 @@ export default function TicTacToeUI({
 				<div className="mt-4 text-center">Winner: {gameState.winner.mark}</div>
 			)}
 			{gameState.isDraw && <div className="mt-4 text-center">Draw</div>}
+			{gameState.isDraw ||
+				(gameState.winner && (
+					<Button
+						className="mt-4 bg-green-500 hover:bg-green-500/90"
+						onClick={handleNewGame}
+					>
+						<Play size={22} className="mr-2" /> New Game
+					</Button>
+				))}
 		</div>
 	);
 }

@@ -5,8 +5,8 @@ export default function GamePage({ params }: { params: { game_id: string } }) {
 
 	return (
 		<div className="flex flex-row items-center justify-center gap-x-4">
-			<TicTacToeUI gameId={gameId} connectionId="123" />
-			<TicTacToeUI gameId={gameId} connectionId="321" />
+			<TicTacToeUI gameId={gameId} connectionId="123" key="123" />
+			<TicTacToeUI gameId={gameId} connectionId="321" key="321" />
 		</div>
 	);
 }
