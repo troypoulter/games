@@ -1,11 +1,8 @@
 import { z } from "zod";
 
 export const TicTacToeWebhookEvents = z.enum([
-	"tictactoe.player.connected",
-	"tictactoe.player.disconnected",
+	"tictactoe.game.newGame",
 	"tictactoe.game.full",
-	"tictactoe.game.started",
-	"tictactoe.game.finished",
 	"tictactoe.game.update",
 	"tictactoe.move.made",
 ]);

@@ -7,9 +7,10 @@ import {
 } from "@/lib/standard-webhook";
 
 import {
-	BoardSchema,
+	BoardType,
 	GameState,
 	GameStateSchema,
+	PlayerMarkType,
 	PlayerSchema,
 } from "../_types/game-state";
 import { MoveDataSchema } from "../_types/move-data";
@@ -24,13 +25,11 @@ export default class TicTacToeServer implements Party.Server {
 			let gameState = await this.room.storage.get<GameState>(GAMESTATE_KEY);
 
 			if (!gameState) {
-				const initialBoard: z.infer<typeof BoardSchema> = Array.from(
-					{ length: 3 },
-					() => Array.from({ length: 3 }, () => null),
+				const initialBoard: BoardType = Array.from({ length: 3 }, () =>
+					Array.from({ length: 3 }, () => null),
 				);
 
 				gameState = {
-					hasGameStarted: false,
 					players: {},
 					board: initialBoard,
 					currentPlayer: null,
@@ -67,35 +66,10 @@ export default class TicTacToeServer implements Party.Server {
 
 	async onConnect(connection: Party.Connection) {
 		const gameState = await this.room.storage.get<GameState>(GAMESTATE_KEY);
-		if (!gameState) return; // Exit if game state is not found
+		if (!gameState) return;
 
-		if (
-			!gameState.hasGameStarted &&
-			Object.keys(gameState.players).length < 2
-		) {
-			const newPlayer = PlayerSchema.parse({
-				id: connection.id,
-				name: `Player ${Object.keys(gameState.players).length + 1}`,
-				mark: Object.keys(gameState.players).length === 0 ? "X" : "O",
-			});
-
-			gameState.players[connection.id] = newPlayer;
-
-			// Set the current player if it's the first player joining
-			if (!gameState.currentPlayer) {
-				gameState.currentPlayer = newPlayer;
-			}
-
-			await this.room.storage.put(GAMESTATE_KEY, gameState);
-
-			this.room.broadcast(
-				createStandardWebhookMessage(
-					"tictactoe.player.connected",
-					gameState,
-					GameStateSchema,
-				),
-			);
-		} else {
+		// If the game is already full, exit early and disconnect the incoming connection.
+		if (Object.keys(gameState.players).length >= 2) {
 			connection.send(
 				createStandardWebhookMessage(
 					"tictactoe.game.full",
@@ -106,10 +80,62 @@ export default class TicTacToeServer implements Party.Server {
 			connection.close();
 			return;
 		}
+
+		const newPlayer = PlayerSchema.parse({
+			id: connection.id,
+			name: `Player ${Object.keys(gameState.players).length + 1}`,
+			mark: Object.keys(gameState.players).length === 0 ? "X" : "O",
+		});
+
+		gameState.players[connection.id] = newPlayer;
+
+		// Set the current player if it's the first player joining
+		if (!gameState.currentPlayer) {
+			gameState.currentPlayer = newPlayer;
+		}
+
+		await this.room.storage.put<GameState>(GAMESTATE_KEY, gameState);
+
+		this.room.broadcast(
+			createStandardWebhookMessage(
+				"tictactoe.game.update",
+				gameState,
+				GameStateSchema,
+			),
+		);
+	}
+
+	async onClose(connection: Party.Connection) {
+		const gameState = await this.room.storage.get<GameState>(GAMESTATE_KEY);
+		if (!gameState) return;
+
+		if (gameState.players[connection.id]) {
+			delete gameState.players[connection.id];
+
+			gameState.winner = gameState.players[Object.keys(gameState.players)[0]];
+			await this.room.storage.put(GAMESTATE_KEY, gameState);
+			this.room.broadcast(
+				createStandardWebhookMessage(
+					"tictactoe.game.update",
+					gameState,
+					GameStateSchema,
+				),
+			);
+		}
 	}
 
 	async onMessage(message: string, sender: Party.Connection) {
-		// Parse and validate the message
+		// Before accepting any messages, ensure there is game state created,
+		// if there isn't, exit early.
+		const gameState = await this.room.storage.get<GameState>(GAMESTATE_KEY);
+		if (!gameState) return;
+
+		// Only allow messages if there are enough players connected.
+		// TODO: Display a proper error message.
+		if (Object.keys(gameState.players).length < 2) {
+			return;
+		}
+
 		const parseResult = parseStandardWebhookMessage(message, z.unknown());
 		if (parseResult instanceof z.ZodError) {
 			console.error("Failed to validate message:", parseResult.flatten());
@@ -122,6 +148,9 @@ export default class TicTacToeServer implements Party.Server {
 			case "tictactoe.move.made":
 				await this.handleMove(parseResult.data, sender);
 				break;
+			case "tictactoe.game.newGame":
+				await this.newGame();
+				break;
 			default:
 				console.log(
 					"Received an unsupported type of message:",
@@ -131,7 +160,13 @@ export default class TicTacToeServer implements Party.Server {
 		}
 	}
 
-	async handleMove(data: unknown, sender: Party.Connection) {
+	private async handleMove(data: unknown, sender: Party.Connection) {
+		const gameState = await this.room.storage.get<GameState>(GAMESTATE_KEY);
+		if (!gameState) return; // Exit if game state is not found
+
+		// TODO: Return helpful message if game is over
+		if (gameState.isDraw || gameState.winner) return;
+
 		// Validate the move data
 		const moveResult = MoveDataSchema.safeParse(data);
 		if (!moveResult.success) {
@@ -142,7 +177,7 @@ export default class TicTacToeServer implements Party.Server {
 
 		// Execute the move
 		const { row, col } = moveResult.data;
-		const gameState = await this.room.storage.get<GameState>(GAMESTATE_KEY);
+
 		if (!gameState || gameState.board[row][col] !== null) {
 			sender.send("Invalid move or game state.");
 			return;
@@ -153,12 +188,104 @@ export default class TicTacToeServer implements Party.Server {
 			return;
 		}
 
-		// Update the board and check for game over or switch player
-		gameState.board[row][col] = gameState.currentPlayer.mark;
-		// Simplified logic, consider game over check and switching current player
-		await this.room.storage.put(GAMESTATE_KEY, gameState);
+		if (gameState.currentPlayer.id !== sender.id) {
+			sender.send("Invalid move or game state.");
+			return;
+		}
 
+		// Update the board with the current player's mark
+		gameState.board[row][col] = gameState.currentPlayer.mark;
+
+		// Check for a winner or if the board is full
+		if (this.checkWinner(gameState.board, gameState.currentPlayer.mark)) {
+			gameState.winner = gameState.currentPlayer;
+			await this.room.storage.put(GAMESTATE_KEY, gameState);
+			this.room.broadcast(
+				createStandardWebhookMessage(
+					"tictactoe.game.update",
+					gameState,
+					GameStateSchema,
+				),
+			);
+
+			return;
+		}
+
+		// Switch the current player to the next player
+		const playerIds = Object.keys(gameState.players);
+		const nextPlayerId = playerIds.find(
+			(id) => id !== gameState.currentPlayer!.id,
+		);
+
+		if (!nextPlayerId) {
+			console.error("Next player not found. Check game state integrity.");
+			return;
+		}
+
+		gameState.currentPlayer = gameState.players[nextPlayerId];
+
+		// Check if the board is full (draw condition)
+		const isBoardFull = gameState.board.every((row) =>
+			row.every((cell) => cell !== null),
+		);
+
+		if (isBoardFull) {
+			gameState.isDraw = true;
+			await this.room.storage.put(GAMESTATE_KEY, gameState);
+			this.room.broadcast(
+				createStandardWebhookMessage(
+					"tictactoe.game.update",
+					gameState,
+					GameStateSchema,
+				),
+			);
+			return;
+		}
+
+		await this.room.storage.put(GAMESTATE_KEY, gameState);
 		// Broadcast the updated game state to all clients
+		this.room.broadcast(
+			createStandardWebhookMessage(
+				"tictactoe.game.update",
+				gameState,
+				GameStateSchema,
+			),
+		);
+	}
+
+	private checkWinner(board: BoardType, playerMark: PlayerMarkType): boolean {
+		const winConditions = [
+			[board[0][0], board[0][1], board[0][2]],
+			[board[1][0], board[1][1], board[1][2]],
+			[board[2][0], board[2][1], board[2][2]],
+			[board[0][0], board[1][0], board[2][0]],
+			[board[0][1], board[1][1], board[2][1]],
+			[board[0][2], board[1][2], board[2][2]],
+			[board[0][0], board[1][1], board[2][2]],
+			[board[2][0], board[1][1], board[0][2]],
+		];
+
+		return winConditions.some((line) =>
+			line.every((cell) => cell === playerMark),
+		);
+	}
+
+	private async newGame() {
+		const gameState = await this.room.storage.get<GameState>(GAMESTATE_KEY);
+		if (!gameState) return; // Exit if game state is not found
+
+		// Only allow creating a new game if the game has finished (either a draw or there is a winner).
+		if (!gameState.isDraw && !gameState.winner) return;
+
+		const initialBoard: BoardType = Array.from({ length: 3 }, () =>
+			Array.from({ length: 3 }, () => null),
+		);
+
+		gameState.isDraw = null;
+		gameState.winner = null;
+		gameState.board = initialBoard;
+
+		await this.room.storage.put(GAMESTATE_KEY, gameState);
 		this.room.broadcast(
 			createStandardWebhookMessage(
 				"tictactoe.game.update",

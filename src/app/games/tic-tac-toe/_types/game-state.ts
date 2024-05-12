@@ -1,10 +1,12 @@
 import { z } from "zod";
 
 export const PlayerMarkSchema = z.enum(["X", "O"]);
+export type PlayerMarkType = z.infer<typeof PlayerMarkSchema>;
 
 export const BoardSchema = z.array(
 	z.array(z.union([PlayerMarkSchema, z.null()])),
 );
+export type BoardType = z.infer<typeof BoardSchema>;
 
 export const PlayerSchema = z.object({
 	id: z.string(),
@@ -13,7 +15,6 @@ export const PlayerSchema = z.object({
 });
 
 export const GameStateSchema = z.object({
-	hasGameStarted: z.boolean(),
 	players: z.record(z.string(), PlayerSchema),
 	board: BoardSchema,
 	currentPlayer: PlayerSchema.nullable(),

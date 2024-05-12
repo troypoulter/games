@@ -4,7 +4,7 @@ export default function GamePage({ params }: { params: { game_id: string } }) {
 	const gameId = params.game_id;
 
 	return (
-		<div>
+		<div className="flex flex-row items-center justify-center gap-x-4">
 			<TicTacToeUI gameId={gameId} />
 		</div>
 	);
