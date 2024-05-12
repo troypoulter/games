@@ -3,9 +3,13 @@
 
 import { z } from "zod";
 
+import { ExtremeWordsWebhookEvents } from "@/app/games/extreme-words/_types/webhook-event-types";
 import { TicTacToeWebhookEvents } from "@/app/games/tic-tac-toe/_types/webhook-event-types";
 
-const AllGameWebhookEvents = [...TicTacToeWebhookEvents.options] as const;
+const AllGameWebhookEvents = [
+	...TicTacToeWebhookEvents.options,
+	...ExtremeWordsWebhookEvents.options,
+] as const;
 export const WebhookEventType = z.enum(AllGameWebhookEvents);
 export type WebhookEventTypeType = z.infer<typeof WebhookEventType>;
 

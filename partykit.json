@@ -3,7 +3,8 @@
 	"name": "games",
 	"main": "src/app/games/tic-tac-toe/_party/tictactoe.ts",
 	"parties": {
-		"tictactoe": "src/app/games/tic-tac-toe/_party/tictactoe.ts"
+		"tictactoe": "src/app/games/tic-tac-toe/_party/tictactoe.ts",
+		"extremewords": "src/app/games/extreme-words/_party/extremewords.ts"
 	},
 	"compatibilityDate": "2024-05-03"
 }
