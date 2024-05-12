@@ -6,7 +6,7 @@ export const Logo = () => {
 		<Link href="/">
 			<div className="flex flex-row items-center gap-x-1 transition-opacity hover:opacity-75">
 				<Gamepad2 size={28} color="#007DFC" />
-				<div className="text-lg font-semibold text-[#007DFC]">
+				<div className="text-sm font-semibold text-[#007DFC]">
 					Games with Friends
 				</div>
 			</div>

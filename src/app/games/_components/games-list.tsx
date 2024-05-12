@@ -14,24 +14,15 @@ const games = [
 		href: "/games/tic-tac-toe",
 	},
 	{
-		label: "Tic Tac Toe",
-		description: "Play Tic Tac Toe with friends or against a robot!",
-		href: "/games/tic-tac-toe",
+		label: "Extreme Words",
+		description: "Play Extreme Words with a group of friends!",
+		href: "/games/extreme-words",
 	},
 	{
-		label: "Tic Tac Toe",
-		description: "Play Tic Tac Toe with friends or against a robot!",
-		href: "/games/tic-tac-toe",
-	},
-	{
-		label: "Tic Tac Toe",
-		description: "Play Tic Tac Toe with friends or against a robot!",
-		href: "/games/tic-tac-toe",
-	},
-	{
-		label: "Tic Tac Toe",
-		description: "Play Tic Tac Toe with friends or against a robot!",
-		href: "/games/tic-tac-toe",
+		label: "The Mind",
+		description:
+			"Play numbers in ascending order as a team... it's all about the vibe!",
+		href: "/games/the-mind",
 	},
 ];
 
