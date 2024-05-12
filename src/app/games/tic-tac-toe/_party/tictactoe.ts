@@ -105,6 +105,25 @@ export default class TicTacToeServer implements Party.Server {
 		);
 	}
 
+	async onClose(connection: Party.Connection) {
+		const gameState = await this.room.storage.get<GameState>(GAMESTATE_KEY);
+		if (!gameState) return;
+
+		if (gameState.players[connection.id]) {
+			delete gameState.players[connection.id];
+
+			gameState.winner = gameState.players[Object.keys(gameState.players)[0]];
+			await this.room.storage.put(GAMESTATE_KEY, gameState);
+			this.room.broadcast(
+				createStandardWebhookMessage(
+					"tictactoe.game.update",
+					gameState,
+					GameStateSchema,
+				),
+			);
+		}
+	}
+
 	async onMessage(message: string, sender: Party.Connection) {
 		// Before accepting any messages, ensure there is game state created,
 		// if there isn't, exit early.
