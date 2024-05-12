@@ -1,10 +1,11 @@
 "use client";
 
-import { Play } from "lucide-react";
+import { Loader2, Play } from "lucide-react";
 import usePartySocket from "partysocket/react";
 import { useState } from "react";
 import { z } from "zod";
 
+import InviteButton from "@/components/InviteButton";
 import { Button } from "@/components/ui/button";
 import { PARTYKIT_HOST } from "@/lib/env";
 import {
@@ -98,6 +99,18 @@ export default function TicTacToeUI({
 
 	if (!gameState) {
 		return <div>Loading...</div>;
+	}
+
+	if (Object.keys(gameState.players).length <= 1) {
+		return (
+			<div className="flex flex-col items-center justify-center space-y-4">
+				<h2 className="flex flex-row items-center justify-center text-3xl font-semibold">
+					<Loader2 className="mr-2 animate-spin" />
+					Waiting for the other player to join
+				</h2>
+				<InviteButton />
+			</div>
+		);
 	}
 
 	return (
