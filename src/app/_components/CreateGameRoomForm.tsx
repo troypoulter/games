@@ -28,7 +28,7 @@ export default function CreateGameRoomForm({ game }: { game: string }) {
 
 		localStorage.setItem("userName", name);
 		if (game === "the-mind") {
-			createTheMindGame(room);
+			await createTheMindGame(room);
 		} else if (game === "extreme-words") {
 			await createExtremeWordsGame(room);
 		}
