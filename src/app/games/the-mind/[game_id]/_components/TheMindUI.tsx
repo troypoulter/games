@@ -9,12 +9,15 @@
 
 "use client";
 
+import Image from "next/image";
 import { usePartySocket } from "partysocket/react";
-import { useEffect, useRef, useState } from "react";
+import { createRef, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import Select from "@/components/ui/Select";
 import { PARTYKIT_HOST } from "@/lib/env";
+
+import giphyLogo from "../../../../../../assets/powered_by_giphy.png";
 
 const DealButton = ({ cardsToDeal, onClick }: any) => {
 	return (
@@ -35,7 +38,7 @@ const Keyboard = ({ cards, onClick, gameState }: any) => {
 			<div className="row flex justify-center">
 				{cards.map((number: string) => (
 					<Button
-						className="m-2 px-4 py-6"
+						className="m-1 px-4 py-6"
 						key={number}
 						disabled={gameState != "play"}
 						onClick={() => onClick(number)}
@@ -47,6 +50,23 @@ const Keyboard = ({ cards, onClick, gameState }: any) => {
 		</div>
 	);
 };
+
+async function fetchAndProcessGif(
+	tag: string,
+): Promise<{ height: number; url: string; width: number }> {
+	const gifSearchUrl = `https://api.giphy.com/v1/gifs/random?tag=${tag}&api_key=TcX2E9NN88FXG1LTEiZU3SWMNKTUG1Vn`;
+	const response = await fetch(gifSearchUrl);
+	const gifresp = await response.json();
+	const originalImage = gifresp.data.images.original;
+	const width = 250;
+	const height = (width / originalImage.width) * originalImage.height;
+
+	return {
+		url: originalImage.url,
+		width: width,
+		height: height,
+	};
+}
 
 export default function TheMindGame({ gameId }: { gameId: string }) {
 	const room = gameId;
@@ -60,6 +80,32 @@ export default function TheMindGame({ gameId }: { gameId: string }) {
 	const [playedCards, setPlayedCards] = useState(0);
 	const [cards, setCards] = useState<string[]>([]);
 	const [ws, setWs] = useState<WebSocket>();
+	const [gif, setGif] = useState<any>();
+	const scrollEndRef = useRef<null | HTMLDivElement>(null);
+
+	useEffect(() => {
+		const fetchData = async () => {
+			console.log("Numbers: " + JSON.stringify(numbers));
+			let tag = "epic win";
+			let endGame = "You have won!";
+			for (let i = 0; i < numbers.length - 1; i++) {
+				if (parseInt(numbers[i]) > parseInt(numbers[i + 1])) {
+					console.log("out of order!");
+					tag = `fail loser`;
+					endGame = "You have lost :(";
+				}
+			}
+			if (numbers.length === totalCards || endGame === "You have lost :(") {
+				const gif = await fetchAndProcessGif(tag);
+				const newText = [...text];
+				newText.push(endGame);
+				setText(newText);
+				setGif(gif);
+			}
+			console.log("In order");
+		};
+		void fetchData();
+	}, [numbers]);
 
 	useEffect(() => {
 		if (!initialized.current) {
@@ -71,6 +117,17 @@ export default function TheMindGame({ gameId }: { gameId: string }) {
 			setWs(ws2);
 		}
 	}, [room]);
+
+	useEffect(() => {
+		console.log("Scrolling");
+		scrollEndRef &&
+			scrollEndRef.current &&
+			scrollEndRef.current.scroll({
+				top: scrollEndRef.current.scrollHeight,
+				behavior: "smooth",
+			});
+		// scrollEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+	});
 
 	if (!ws) {
 		return <div>Loading...</div>;
@@ -108,6 +165,7 @@ export default function TheMindGame({ gameId }: { gameId: string }) {
 			console.log("Cards: " + response.cards);
 			console.log("Total Cards: " + response.totalCards);
 			setCards([]);
+			setGif();
 			setCards(response.cards);
 			setTotalCards(response.totalCards);
 			setNumbers([]);
@@ -140,14 +198,39 @@ export default function TheMindGame({ gameId }: { gameId: string }) {
 					</div>
 				)}
 			</div>
-			<div className="pt-6">
-				{text.map((t, idx) => (
-					<div key={idx} className="flex justify-center pt-2">
-						{t}
+			<div
+				id="scrollable"
+				ref={scrollEndRef}
+				className="scroll-snap-y-container h-[60vh] overflow-auto"
+			>
+				<div className="pt-6">
+					{text.map((t, idx) => (
+						<div key={idx} className="flex justify-center pt-2">
+							{t}
+						</div>
+					))}
+				</div>
+				{gif && (
+					<div className="row flex justify-center pt-2">
+						<div>
+							<Image
+								src={gif.url}
+								width={gif.width}
+								height={gif.height}
+								alt={""}
+							/>
+							<Image
+								src={giphyLogo}
+								width={75}
+								height={27}
+								alt={""}
+								className="translate-y-[-100%]"
+							/>
+						</div>
 					</div>
-				))}
+				)}
 			</div>
-			<div className="absolute inset-x-0 bottom-16">
+			<div className="absolute inset-x-0 bottom-16 pt-4">
 				<Keyboard onClick={handleKeyPress} cards={cards} gameState="play" />
 			</div>
 			<div className="row absolute inset-x-0 bottom-0 flex justify-evenly">
