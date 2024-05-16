@@ -176,6 +176,7 @@ export default function TheMindGame({ gameId }: { gameId: string }) {
 			setNumbers([]);
 			setText([]);
 			setPlayedCards(0);
+			setGameOver(false);
 		}
 		if (response.handler == "playCard") {
 			const newPlayedCards = playedCards + 1;
