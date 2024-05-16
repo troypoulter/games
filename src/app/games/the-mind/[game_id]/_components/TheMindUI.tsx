@@ -170,7 +170,7 @@ export default function TheMindGame({ gameId }: { gameId: string }) {
 			console.log("Cards: " + response.cards);
 			console.log("Total Cards: " + response.totalCards);
 			setCards([]);
-			setGif();
+			setGif(undefined);
 			setCards(response.cards);
 			setTotalCards(response.totalCards);
 			setNumbers([]);
