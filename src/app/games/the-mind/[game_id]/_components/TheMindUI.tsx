@@ -82,8 +82,12 @@ export default function TheMindGame({ gameId }: { gameId: string }) {
 	const [ws, setWs] = useState<WebSocket>();
 	const [gif, setGif] = useState<any>();
 	const scrollEndRef = useRef<null | HTMLDivElement>(null);
+	const [gameOver, setGameOver] = useState<boolean>(false);
 
 	useEffect(() => {
+		if (gameOver) {
+			return;
+		}
 		const fetchData = async () => {
 			console.log("Numbers: " + JSON.stringify(numbers));
 			let tag = "epic win";
@@ -101,11 +105,12 @@ export default function TheMindGame({ gameId }: { gameId: string }) {
 				newText.push(endGame);
 				setText(newText);
 				setGif(gif);
+				setGameOver(true);
 			}
 			console.log("In order");
 		};
 		void fetchData();
-	}, [numbers]);
+	}, [gameOver, numbers, text, totalCards]);
 
 	useEffect(() => {
 		if (!initialized.current) {
