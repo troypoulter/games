@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-call */
 import Groq from "groq-sdk";
 import { ChatCompletion } from "groq-sdk/resources/chat/index.mjs";
 import type * as Party from "partykit/server";
