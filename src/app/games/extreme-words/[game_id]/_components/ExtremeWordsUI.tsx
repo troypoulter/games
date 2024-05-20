@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription } from "@/components/ui/card";
+import Select from "@/components/ui/Select";
 import { PARTYKIT_HOST } from "@/lib/env";
 
 import { Word } from "../../_types/word";
@@ -28,6 +29,8 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 	const [prevWords, setPrevWords] = useState<Word[]>([]);
 	const [gameInProg, setGameInProg] = useState<boolean | undefined>();
 	const [activePlayer, setActivePlayer] = useState<string>();
+	const [selectedCategory, setSelectedCategory] = useState<string>("Random");
+	const categories = ["Random", "Nature", "Music", "Movies"];
 	const [times, setTimes] = useState<Times>({
 		time,
 		seconds: 45,
@@ -80,7 +83,7 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 	};
 
 	const startGame = () => {
-		socket.send(JSON.stringify({ message: "startGame", player: playerName }));
+		socket.send(JSON.stringify({ message: "startGame", player: playerName })); //TODO generate a unique ID here or soemthing...
 	};
 
 	const startRound = (active: boolean, rule: string) => {
@@ -91,12 +94,17 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 		setPrevWords([]);
 		clearTimeout(timeOut);
 		setGameInProg(true);
-		socket.send(JSON.stringify({ message: "getWord" }));
+		getNewWord();
 		setTimes({
 			time: 45,
 			seconds: 45,
 			minutes: 1,
 		});
+	};
+
+	const getNewWord = () => {
+		const data = { category: selectedCategory };
+		socket.send(JSON.stringify({ message: "getWord", data: data }));
 	};
 
 	const wordRight = () => {
@@ -109,7 +117,7 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 				JSON.stringify({ message: "prevWords", data: newWords }),
 		);
 		socket.send(JSON.stringify({ message: "prevWords", data: newWords }));
-		socket.send(JSON.stringify({ message: "getWord" }));
+		getNewWord();
 		const newScore: number = score + 1;
 		setScore(newScore);
 	};
@@ -119,7 +127,7 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 		const newWords = [...prevWords];
 		newWords.push(word);
 		setPrevWords(newWords);
-		socket.send(JSON.stringify({ message: "getWord" }));
+		getNewWord();
 		socket.send(JSON.stringify({ message: "prevWords", data: newWords }));
 	};
 
@@ -187,7 +195,12 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 				</div>
 			)}
 			{!gameInProg && (
-				<div className="absolute inset-x-0 bottom-0 flex justify-center">
+				<div className="absolute inset-x-0 bottom-0 flex justify-evenly">
+					<Select
+						defaultValue={selectedCategory}
+						selectItems={categories}
+						onChange={setSelectedCategory}
+					/>
 					<Button
 						className="bg-green-500 px-8 hover:bg-green-500/90"
 						onClick={() => startGame()}
