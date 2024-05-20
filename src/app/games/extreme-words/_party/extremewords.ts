@@ -1,14 +1,16 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import Groq from "groq-sdk";
+import { ChatCompletion } from "groq-sdk/resources/chat/index.mjs";
 import type * as Party from "partykit/server";
 
 // import { natureWords } from "./nature";
 import { rules } from "./rules";
 import { famousMovies, musicWords, natureWords, randomObjects } from "./words";
 
-const groq = new Groq({
-	apiKey: "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",
+const groq: Groq = new Groq({
+	apiKey: "APIKEY",
 });
 
 export default class ExtremeWordsServer implements Party.Server {
@@ -87,7 +89,7 @@ export default class ExtremeWordsServer implements Party.Server {
 	async generateWords(category: string) {
 		let words: string[] = ["volcano"];
 		console.log("Category: " + category);
-		const chatCompletion = await groq.chat.completions.create({
+		const chatCompletion: ChatCompletion = await groq.chat.completions.create({
 			messages: [
 				{
 					role: "user",
