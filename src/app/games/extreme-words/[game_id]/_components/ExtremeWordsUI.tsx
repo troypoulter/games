@@ -4,6 +4,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 "use client";
 
+import { nanoid } from "nanoid";
 import usePartySocket from "partysocket/react";
 import { useEffect, useState } from "react";
 
@@ -22,6 +23,7 @@ interface Times {
 
 export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 	const time = 0;
+	const [playerName, setPlayerName] = useState<string>("Fred");
 	const [isActivePlayer, setIsActivePlayer] = useState<boolean>(false);
 	const [timeOut, setTimeOut] = useState<NodeJS.Timeout>();
 	const [score, setScore] = useState<number>(0);
@@ -29,10 +31,10 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 	const [prevWords, setPrevWords] = useState<Word[]>([]);
 	const [gameInProg, setGameInProg] = useState<boolean | undefined>();
 	const [activePlayer, setActivePlayer] = useState<string>();
-	const [selectedCategory, setSelectedCategory] = useState<string>("Custom");
-	const [customCategory, setCustomCategory] = useState<string | undefined>();
+	const [selectedCategory, setSelectedCategory] = useState<string>("Random");
+	const [customCategory, setCustomCategory] = useState<string>("");
+	const [uniqueId, setUniqueId] = useState<string | undefined>();
 	const categories = [
-		"Pop Punk Bands",
 		"Animals",
 		"Famous Quotes",
 		"Harry Potter",
@@ -43,11 +45,12 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 		"Simpsons",
 		"TV Shows",
 		"Books",
+		"Pop Punk Bands",
 		"Custom",
 	];
 	const [times, setTimes] = useState<Times>({
 		time,
-		seconds: 45,
+		seconds: 4,
 		minutes: Math.floor((time - 1) / 60),
 	});
 	const [rule, setRule] = useState<string>();
@@ -57,6 +60,12 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 		room: gameId,
 		party: "extremewords",
 	});
+
+	useEffect(() => {
+		const name = localStorage.getItem("userName") || "Fred";
+		setPlayerName(name);
+		console.log("Player name is: " + localStorage.getItem("userName"));
+	}, []);
 
 	useEffect(() => {
 		const timeoutId = setTimeout(() => {
@@ -75,24 +84,17 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 		setTimeOut(timeoutId);
 	}, [times.time]);
 
-	const playerName = localStorage.getItem("userName") || "Fred";
-
 	socket.onmessage = (response) => {
-		console.log("Got message of word back: " + response.data);
 		const mess = JSON.parse(response.data);
 		if (mess.message === "startGame") {
+			console.log("My unique ID: " + uniqueId);
+			console.log("Message Unique ID: " + mess.data.uniqueId);
+			const isActive = mess.data.uniqueId === uniqueId;
 			setActivePlayer(mess.data.player);
-			if (mess.data.player === playerName) {
-				startRound(true, mess.data.rule);
-			} else {
-				startRound(false, mess.data.rule);
-			}
+			startRound(isActive, mess.data.rule);
 		}
 		if (mess.message === "getWord") {
 			setGuessWord(mess.data);
-		}
-		if (mess.message === "generateWords") {
-			socket.send(JSON.stringify({ message: "startGame", player: playerName })); //TODO generate a unique ID here or soemthing...
 		}
 		if (mess.message === "prevWords") {
 			setPrevWords(mess.data);
@@ -101,16 +103,20 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 
 	const startGame = () => {
 		let categ = selectedCategory;
-		if (selectedCategory === "Custom" && customCategory) {
+		if (selectedCategory === "Custom" && customCategory != "") {
 			categ = customCategory;
 		}
-		const data = { category: categ };
-		socket.send(JSON.stringify({ message: "generateWords", data: data })); //TODO generate a unique ID here or soemthing...
+		const id = nanoid(10);
+		setUniqueId(id);
+		const data = { category: categ, uniqueId: id, player: playerName };
+		socket.send(JSON.stringify({ message: "startGame", data: data }));
 	};
 
 	const startRound = (active: boolean, rule: string) => {
+		console.log("Starting new round!!!");
 		setIsActivePlayer(active);
 		setRule(rule);
+		setUniqueId(undefined);
 		setScore(0);
 		setGuessWord("");
 		setPrevWords([]);
@@ -118,8 +124,8 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 		setGameInProg(true);
 		getNewWord();
 		setTimes({
-			time: 45,
-			seconds: 45,
+			time: 4,
+			seconds: 4,
 			minutes: 1,
 		});
 	};
@@ -155,7 +161,7 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 
 	return (
 		<>
-			{!activePlayer && (
+			{!gameInProg && (
 				<>
 					<h1 className="flex justify-center text-lg font-bold">
 						Welcome to Extreme Words
@@ -166,13 +172,13 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 					</div>
 				</>
 			)}
-			{activePlayer && (
+			{gameInProg && (
 				<div className="flex justify-evenly py-3">
 					<div>Time: {times.seconds}</div>
 					<div>Score: {score}</div>
 				</div>
 			)}
-			{activePlayer && (
+			{gameInProg && (
 				<Card className="transition-colors">
 					<CardDescription className="flex max-w-lg justify-center p-3 leading-relaxed">
 						<b>RULE:&nbsp;&nbsp;</b>

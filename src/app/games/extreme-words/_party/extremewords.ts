@@ -2,10 +2,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import Groq from "groq-sdk";
 import type * as Party from "partykit/server";
+import { generate } from "random-words";
 
 // import { natureWords } from "./nature";
 import { rules } from "./rules";
-// import { famousMovies, musicWords, natureWords, randomObjects } from "./words";
 
 const groq = new Groq({
 	apiKey: "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",
@@ -49,28 +49,31 @@ export default class ExtremeWordsServer implements Party.Server {
 		const requestJson = JSON.parse(request);
 		const message = requestJson.message;
 		if (message === "startGame") {
+			const category: string = requestJson.data.category;
 			const rule = rules[Math.floor(Math.random() * rules.length)];
-			const data = { player: requestJson.player, rule: rule.rule };
+			const data = {
+				player: requestJson.data.player,
+				rule: rule.rule,
+				uniqueId: requestJson.data.uniqueId,
+			};
 			const response = { message: "startGame", data: data };
+			let words = await this.generateWords(category);
+			if (words.length < 10) {
+				words = generate({ exactly: 30 }) as string[];
+			}
+			this.wordArray = words;
 			this.room.broadcast(JSON.stringify(response));
 		} else if (message === "getWord") {
 			console.log("Data: " + JSON.stringify(requestJson.data));
 			const array = this.wordArray;
 			const idx = Math.floor(Math.random() * array.length);
 			const word = array[idx];
+			array.splice(idx, 1);
 			const response = { message: "getWord", data: word };
 			this.room.broadcast(JSON.stringify(response));
 		} else if (message === "prevWords") {
 			console.log("Previous words are: " + message.data);
-			// const response = { message: "prevWords", data: message.data };
 			this.room.broadcast(request);
-		} else if (message === "generateWords") {
-			const category: string = requestJson.data.category;
-			const words = await this.generateWords(category);
-			this.wordArray = words;
-			const response = { message: "generateWords" };
-			// const response = { message: "prevWords", data: message.data };
-			this.room.broadcast(JSON.stringify(response));
 		} else {
 			console.log("Message is not getWord");
 		}
@@ -89,11 +92,14 @@ export default class ExtremeWordsServer implements Party.Server {
 			model: "mixtral-8x7b-32768",
 		});
 		const chatContent = chatCompletion.choices[0].message.content;
-		// console.log("Chat Content: " + JSON.stringify(chatContent));
 		words = chatContent.split(";");
-
+		if (words[0].includes("Sure") || words[0].includes("here is")) {
+			// remove initial starting stuff...
+			words.splice(0);
+		}
 		this.wordArray = words;
 		console.log("Word Array: " + JSON.stringify(words));
+
 		// const resp = chatCompletion.choices[0].message.content;
 		return words;
 	}
