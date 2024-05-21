@@ -4,11 +4,13 @@ import Groq from "groq-sdk";
 import type * as Party from "partykit/server";
 import { generate } from "random-words";
 
+import { GROQ_API_KEY } from "@/lib/env";
+
 // import { natureWords } from "./nature";
 import { rules } from "./rules";
 
 const groq = new Groq({
-	apiKey: "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",
+	apiKey: GROQ_API_KEY,
 });
 
 export default class ExtremeWordsServer implements Party.Server {
