@@ -50,7 +50,7 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 	];
 	const [times, setTimes] = useState<Times>({
 		time,
-		seconds: 4,
+		seconds: 45,
 		minutes: Math.floor((time - 1) / 60),
 	});
 	const [rule, setRule] = useState<string>();
@@ -124,8 +124,8 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 		setGameInProg(true);
 		getNewWord();
 		setTimes({
-			time: 4,
-			seconds: 4,
+			time: 45,
+			seconds: 45,
 			minutes: 1,
 		});
 	};
