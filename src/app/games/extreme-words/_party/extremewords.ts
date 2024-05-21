@@ -82,25 +82,28 @@ export default class ExtremeWordsServer implements Party.Server {
 	}
 
 	async generateWords(category: string) {
-		let words: string[] = ["volcano"];
-		console.log("Category: " + category);
-		const chatCompletion = await groq.chat.completions.create({
-			messages: [
-				{
-					role: "user",
-					content: `Generate a non cached random list of 50 ${category} words separate by semicolon without any introduction or outro`,
-				},
-			],
-			model: "mixtral-8x7b-32768",
-		});
-		const chatContent = chatCompletion.choices[0].message.content;
-		words = chatContent.split(";");
-		if (words[0].includes("Sure") || words[0].includes("here is")) {
-			// remove initial starting stuff...
-			words.splice(0);
+		let words: string[] = [];
+		try {
+			const chatCompletion = await groq.chat.completions.create({
+				messages: [
+					{
+						role: "user",
+						content: `Generate a non cached random list of 50 ${category} words separate by semicolon without any introduction or outro`,
+					},
+				],
+				model: "mixtral-8x7b-32768",
+			});
+			const chatContent = chatCompletion.choices[0].message.content;
+			words = chatContent.split(";");
+			if (words[0].includes("Sure") || words[0].includes("here is")) {
+				// remove initial starting stuff...
+				words.splice(0);
+			}
+			this.wordArray = words;
+			console.log("Word Array: " + JSON.stringify(words));
+		} catch (error) {
+			console.log("Error getting words: " + JSON.stringify(error));
 		}
-		this.wordArray = words;
-		console.log("Word Array: " + JSON.stringify(words));
 
 		// const resp = chatCompletion.choices[0].message.content;
 		return words;
