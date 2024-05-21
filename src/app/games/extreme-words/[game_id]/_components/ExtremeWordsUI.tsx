@@ -29,8 +29,22 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 	const [prevWords, setPrevWords] = useState<Word[]>([]);
 	const [gameInProg, setGameInProg] = useState<boolean | undefined>();
 	const [activePlayer, setActivePlayer] = useState<string>();
-	const [selectedCategory, setSelectedCategory] = useState<string>("Random");
-	const categories = ["Random", "Nature", "Music", "Movies"];
+	const [selectedCategory, setSelectedCategory] = useState<string>("Custom");
+	const [customCategory, setCustomCategory] = useState<string | undefined>();
+	const categories = [
+		"Pop Punk Bands",
+		"Animals",
+		"Famous Quotes",
+		"Harry Potter",
+		"Random",
+		"Nature",
+		"Music",
+		"Movies",
+		"Simpsons",
+		"TV Shows",
+		"Books",
+		"Custom",
+	];
 	const [times, setTimes] = useState<Times>({
 		time,
 		seconds: 45,
@@ -77,13 +91,21 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 		if (mess.message === "getWord") {
 			setGuessWord(mess.data);
 		}
+		if (mess.message === "generateWords") {
+			socket.send(JSON.stringify({ message: "startGame", player: playerName })); //TODO generate a unique ID here or soemthing...
+		}
 		if (mess.message === "prevWords") {
 			setPrevWords(mess.data);
 		}
 	};
 
 	const startGame = () => {
-		socket.send(JSON.stringify({ message: "startGame", player: playerName })); //TODO generate a unique ID here or soemthing...
+		let categ = selectedCategory;
+		if (selectedCategory === "Custom" && customCategory) {
+			categ = customCategory;
+		}
+		const data = { category: categ };
+		socket.send(JSON.stringify({ message: "generateWords", data: data })); //TODO generate a unique ID here or soemthing...
 	};
 
 	const startRound = (active: boolean, rule: string) => {
@@ -133,13 +155,23 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 
 	return (
 		<>
-			<h1 className="flex justify-center text-lg font-bold">
-				Welcome to Extreme Words
-			</h1>
-			<div className="flex flex-row justify-evenly pb-3">
-				<div>Room: {gameId}</div>
-				<div>Player: {playerName}</div>
-			</div>
+			{!activePlayer && (
+				<>
+					<h1 className="flex justify-center text-lg font-bold">
+						Welcome to Extreme Words
+					</h1>
+					<div className="flex flex-row justify-evenly pb-3">
+						<div>Room: {gameId}</div>
+						<div>Player: {playerName}</div>
+					</div>
+				</>
+			)}
+			{activePlayer && (
+				<div className="flex justify-evenly py-3">
+					<div>Time: {times.seconds}</div>
+					<div>Score: {score}</div>
+				</div>
+			)}
 			{activePlayer && (
 				<Card className="transition-colors">
 					<CardDescription className="flex max-w-lg justify-center p-3 leading-relaxed">
@@ -148,17 +180,13 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 					</CardDescription>
 				</Card>
 			)}
-			<div className="flex justify-evenly py-3">
-				<div>Time: {times.seconds}</div>
-				<div>Score: {score}</div>
-			</div>
 			{guessWord && isActivePlayer && (
 				<div className="flex justify-center pb-6 pt-3">
 					<div className="text-grey-600 text-xl">{guessWord}</div>
 				</div>
 			)}
 			{activePlayer && !isActivePlayer && (
-				<div className="flex justify-center pb-6">
+				<div className="flex justify-center pb-6 pt-3">
 					{activePlayer} is currently describing words!
 				</div>
 			)}
@@ -195,19 +223,33 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 				</div>
 			)}
 			{!gameInProg && (
-				<div className="absolute inset-x-0 bottom-0 flex justify-evenly">
-					<Select
-						defaultValue={selectedCategory}
-						selectItems={categories}
-						onChange={setSelectedCategory}
-					/>
-					<Button
-						className="bg-green-500 px-8 hover:bg-green-500/90"
-						onClick={() => startGame()}
-					>
-						<div className="flex items-center">Start Round</div>
-					</Button>
-				</div>
+				<>
+					{selectedCategory === "Custom" && (
+						<form className="row flex justify-center">
+							<input
+								className=" focus:shadow-outline absolute bottom-14 w-80 appearance-none rounded border px-3 py-2 pb-4 leading-tight text-gray-700 shadow focus:outline-none"
+								id="username"
+								type="text"
+								placeholder="eg. funny quotes, artists, adjectives"
+								value={customCategory}
+								onChange={(e) => setCustomCategory(e.target.value)}
+							/>
+						</form>
+					)}
+					<div className="absolute inset-x-0 bottom-0 flex justify-evenly">
+						<Select
+							defaultValue={selectedCategory}
+							selectItems={categories}
+							onChange={setSelectedCategory}
+						/>
+						<Button
+							className="bg-green-500 px-8 hover:bg-green-500/90"
+							onClick={() => startGame()}
+						>
+							<div className="flex items-center">Start Round</div>
+						</Button>
+					</div>
+				</>
 			)}
 		</>
 	);

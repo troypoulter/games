@@ -1,15 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import Groq from "groq-sdk";
-import { ChatCompletion } from "groq-sdk/resources/chat/index.mjs";
 import type * as Party from "partykit/server";
 
 // import { natureWords } from "./nature";
 import { rules } from "./rules";
-import { famousMovies, musicWords, natureWords, randomObjects } from "./words";
+// import { famousMovies, musicWords, natureWords, randomObjects } from "./words";
 
-const groq: Groq = new Groq({
-	apiKey: "APIKEY",
+const groq = new Groq({
+	apiKey: "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",
 });
 
 export default class ExtremeWordsServer implements Party.Server {
@@ -56,15 +55,7 @@ export default class ExtremeWordsServer implements Party.Server {
 			this.room.broadcast(JSON.stringify(response));
 		} else if (message === "getWord") {
 			console.log("Data: " + JSON.stringify(requestJson.data));
-			const category = requestJson.data.category;
-			let array = randomObjects;
-			if (category == "Nature") {
-				array = natureWords;
-			} else if (category == "Music") {
-				array = musicWords;
-			} else if (category == "Movies") {
-				array = famousMovies;
-			}
+			const array = this.wordArray;
 			const idx = Math.floor(Math.random() * array.length);
 			const word = array[idx];
 			const response = { message: "getWord", data: word };
@@ -74,10 +65,10 @@ export default class ExtremeWordsServer implements Party.Server {
 			// const response = { message: "prevWords", data: message.data };
 			this.room.broadcast(request);
 		} else if (message === "generateWords") {
-			const words = await this.generateWords("nature");
-			const data = { words: words };
-			const response = { message: "generateWords", data: data };
-			console.log();
+			const category: string = requestJson.data.category;
+			const words = await this.generateWords(category);
+			this.wordArray = words;
+			const response = { message: "generateWords" };
 			// const response = { message: "prevWords", data: message.data };
 			this.room.broadcast(JSON.stringify(response));
 		} else {
@@ -88,18 +79,18 @@ export default class ExtremeWordsServer implements Party.Server {
 	async generateWords(category: string) {
 		let words: string[] = ["volcano"];
 		console.log("Category: " + category);
-		const chatCompletion: ChatCompletion = await groq.chat.completions.create({
+		const chatCompletion = await groq.chat.completions.create({
 			messages: [
 				{
 					role: "user",
-					content: "Generate a a list of 50 comma separated famous books",
+					content: `Generate a non cached random list of 50 ${category} words separate by semicolon without any introduction or outro`,
 				},
 			],
 			model: "mixtral-8x7b-32768",
 		});
 		const chatContent = chatCompletion.choices[0].message.content;
-		console.log("Chat Content: " + JSON.stringify(chatContent));
-		words = chatContent.split(",").map((word: string) => word.trim());
+		// console.log("Chat Content: " + JSON.stringify(chatContent));
+		words = chatContent.split(";");
 
 		this.wordArray = words;
 		console.log("Word Array: " + JSON.stringify(words));
