@@ -5,17 +5,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 "use client";
 
 import Image from "next/image";
-import { usePartySocket } from "partysocket/react";
-import { createRef, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
+import InfoButton from "@/app/games/_components/info-button";
 import { Button } from "@/components/ui/button";
 import Select from "@/components/ui/Select";
-import { PARTYKIT_HOST } from "@/lib/env";
 
 import giphyLogo from "../../../../../../assets/powered_by_giphy.png";
 
@@ -25,9 +22,7 @@ const DealButton = ({ cardsToDeal, onClick }: any) => {
 			className="bg-green-500 px-8 hover:bg-green-500/90"
 			onClick={() => onClick(cardsToDeal)}
 		>
-			<div>
-				<div>DEAL CARDS</div>
-			</div>
+			DEAL CARDS
 		</Button>
 	);
 };
@@ -131,7 +126,6 @@ export default function TheMindGame({ gameId }: { gameId: string }) {
 				top: scrollEndRef.current.scrollHeight,
 				behavior: "smooth",
 			});
-		// scrollEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
 	});
 
 	if (!ws) {
@@ -236,17 +230,20 @@ export default function TheMindGame({ gameId }: { gameId: string }) {
 					</div>
 				)}
 			</div>
-			<div className="absolute inset-x-0 bottom-16 pt-4">
+			<div className="flex items-end justify-evenly">
 				<Keyboard onClick={handleKeyPress} cards={cards} gameState="play" />
 			</div>
-			<div className="row absolute inset-x-0 bottom-0 flex justify-evenly">
-				<DealButton cardsToDeal={cardsToDeal} onClick={handleDeal} />
-				<Select
-					defaultValue={cardsToDeal}
-					selectItems={cardOptions}
-					onChange={setCardsToDeal}
-				/>
-			</div>
+			{(gameOver || !totalCards) && (
+				<div className="flex items-end justify-evenly">
+					<DealButton cardsToDeal={cardsToDeal} onClick={handleDeal} />
+					<Select
+						defaultValue={cardsToDeal}
+						selectItems={cardOptions}
+						onChange={setCardsToDeal}
+					/>
+					<InfoButton game="The Mind" />
+				</div>
+			)}
 		</div>
 	);
 }
