@@ -189,7 +189,7 @@ export default function TheMindGame({ gameId }: { gameId: string }) {
 	};
 
 	return (
-		<div>
+		<div className="absolute left-0 top-0 h-full w-full">
 			<div className="row flex justify-evenly">
 				{room && <div className="">Room: {room}</div>}
 				{totalCards && (
@@ -230,11 +230,11 @@ export default function TheMindGame({ gameId }: { gameId: string }) {
 					</div>
 				)}
 			</div>
-			<div className="flex items-end justify-evenly">
+			<div className="row absolute inset-x-0 bottom-0 flex items-end justify-evenly">
 				<Keyboard onClick={handleKeyPress} cards={cards} gameState="play" />
 			</div>
 			{(gameOver || !totalCards) && (
-				<div className="flex items-end justify-evenly">
+				<div className="row absolute inset-x-0 bottom-0 flex items-end justify-evenly">
 					<DealButton cardsToDeal={cardsToDeal} onClick={handleDeal} />
 					<Select
 						defaultValue={cardsToDeal}
