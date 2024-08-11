@@ -189,7 +189,7 @@ export default function TheMindGame({ gameId }: { gameId: string }) {
 	};
 
 	return (
-		<div className="absolute left-0 top-0 h-full w-full">
+		<div>
 			<div className="row flex justify-evenly">
 				{room && <div className="">Room: {room}</div>}
 				{totalCards && (
