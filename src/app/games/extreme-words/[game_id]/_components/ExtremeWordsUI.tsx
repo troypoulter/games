@@ -8,6 +8,7 @@ import { nanoid } from "nanoid";
 import usePartySocket from "partysocket/react";
 import { useEffect, useState } from "react";
 
+import InfoButton from "@/app/games/_components/info-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription } from "@/components/ui/card";
 import Select from "@/components/ui/Select";
@@ -249,11 +250,12 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 							onChange={setSelectedCategory}
 						/>
 						<Button
-							className="bg-green-500 px-8 hover:bg-green-500/90"
+							className="bg-green-500 px-4 hover:bg-green-500/90"
 							onClick={() => startGame()}
 						>
 							<div className="flex items-center">Start Round</div>
 						</Button>
+						<InfoButton game="Extreme Words" />
 					</div>
 				</>
 			)}
