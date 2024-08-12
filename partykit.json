@@ -1,11 +1,12 @@
 {
 	"$schema": "https://www.partykit.io/schema.json",
-	"name": "games",
+	"compatibilityDate": "2024-05-03",
 	"main": "src/app/games/tic-tac-toe/_party/tictactoe.ts",
+	"name": "games",
 	"parties": {
-		"tictactoe": "src/app/games/tic-tac-toe/_party/tictactoe.ts",
 		"extremewords": "src/app/games/extreme-words/_party/extremewords.ts",
-		"themind": "src/app/games/the-mind/_party/themind.ts"
-	},
-	"compatibilityDate": "2024-05-03"
+		"musicquiz": "src/app/games/music-quiz/_party/musicquiz.ts",
+		"themind": "src/app/games/the-mind/_party/themind.ts",
+		"tictactoe": "src/app/games/tic-tac-toe/_party/tictactoe.ts"
+	}
 }

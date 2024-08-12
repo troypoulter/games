@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import { createExtremeWordsGame } from "../games/extreme-words/_actions/create-extremewords-game";
+import { createMusicQuizGame } from "../games/music-quiz/_actions/create-musicquiz-game";
 import { createTheMindGame } from "../games/the-mind/_actions/create-themind-game";
 
 function CreateGameButton() {
@@ -31,6 +32,8 @@ export default function CreateGameRoomForm({ game }: { game: string }) {
 			await createTheMindGame(room);
 		} else if (game === "extreme-words") {
 			await createExtremeWordsGame(room);
+		} else if (game === "music-quiz") {
+			await createMusicQuizGame(room);
 		}
 	}
 
