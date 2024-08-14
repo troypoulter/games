@@ -1,26 +1,11 @@
 {
-	"name": "games",
-	"version": "0.1.0",
-	"private": true,
-	"scripts": {
-		"dev": "concurrently \"npm run dev:partykit\" \"npm run dev:next\" --kill-others",
-		"dev:next": "next dev",
-		"dev:partykit": "partykit dev",
-		"build": "next build",
-		"start": "next start",
-		"lint:ci": "next lint --max-warnings 0 --report-unused-disable-directives-severity error",
-		"lint:fix": "npm run lint:ci -- --fix",
-		"format:ci": "npx prettier . --check",
-		"format:fix": "npx prettier . --write",
-		"local:fixall": "npm run lint:fix && npm run format:fix"
-	},
 	"dependencies": {
+		"@google/generative-ai": "^0.16.0",
 		"@radix-ui/react-dialog": "^1.0.5",
 		"@radix-ui/react-separator": "^1.0.3",
 		"@radix-ui/react-slot": "^1.0.2",
 		"class-variance-authority": "^0.7.0",
 		"clsx": "^2.1.1",
-		"groq-sdk": "^0.3.3",
 		"lucide-react": "^0.378.0",
 		"nanoid": "^5.0.7",
 		"next": "14.2.3",
@@ -54,5 +39,20 @@
 		"tailwindcss": "^3.4.1",
 		"typescript": "^5",
 		"typescript-eslint": "^7.8.0"
-	}
+	},
+	"name": "games",
+	"private": true,
+	"scripts": {
+		"build": "next build",
+		"dev": "concurrently \"npm run dev:partykit\" \"npm run dev:next\" --kill-others",
+		"dev:next": "next dev",
+		"dev:partykit": "partykit dev",
+		"format:ci": "npx prettier . --check",
+		"format:fix": "npx prettier . --write",
+		"lint:ci": "next lint --max-warnings 0 --report-unused-disable-directives-severity error",
+		"lint:fix": "npm run lint:ci -- --fix",
+		"local:fixall": "npm run lint:fix && npm run format:fix",
+		"start": "next start"
+	},
+	"version": "0.1.0"
 }

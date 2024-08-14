@@ -37,7 +37,6 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 	const [uniqueId, setUniqueId] = useState<string | undefined>();
 	const categories = [
 		"Animals",
-		"Famous Quotes",
 		"Harry Potter",
 		"Random",
 		"Nature",
