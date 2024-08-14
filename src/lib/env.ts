@@ -4,5 +4,4 @@ export const PROTOCOL = PARTYKIT_HOST.startsWith("127.0.0.1")
 	? "http"
 	: "https";
 export const PARTYKIT_URL = `${PROTOCOL}://${PARTYKIT_HOST}`;
-export const GROQ_API_KEY =
-	"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";
+export const GEMINI_API_KEY = process.env.GEMINI_API_KEY ?? "INSERT_HERE";

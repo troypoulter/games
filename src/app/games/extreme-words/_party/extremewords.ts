@@ -1,16 +1,20 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import Groq from "groq-sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import type * as Party from "partykit/server";
-import { generate } from "random-words";
 
-import { GROQ_API_KEY } from "@/lib/env";
+import { GEMINI_API_KEY } from "@/lib/env";
 
-// import { natureWords } from "./nature";
 import { rules } from "./rules";
 
-const groq = new Groq({
-	apiKey: GROQ_API_KEY,
+const API_KEY = GEMINI_API_KEY;
+console.log("API KEY:" + API_KEY);
+const genAI = new GoogleGenerativeAI(API_KEY);
+
+const model = genAI.getGenerativeModel({
+	model: "gemini-1.5-flash",
+	// Set the `responseMimeType` to output JSON
+	generationConfig: { responseMimeType: "application/json" },
 });
 
 export default class ExtremeWordsServer implements Party.Server {
@@ -59,11 +63,8 @@ export default class ExtremeWordsServer implements Party.Server {
 				uniqueId: requestJson.data.uniqueId,
 			};
 			const response = { message: "startGame", data: data };
-			let words = await this.generateWords(category);
-			if (words.length < 10) {
-				words = generate({ exactly: 30 }) as string[];
-			}
-			this.wordArray = words;
+			const words = await this.generateWords(category);
+			console.log("Words is: " + JSON.stringify(words));
 			this.room.broadcast(JSON.stringify(response));
 		} else if (message === "getWord") {
 			console.log("Data: " + JSON.stringify(requestJson.data));
@@ -82,30 +83,27 @@ export default class ExtremeWordsServer implements Party.Server {
 	}
 
 	async generateWords(category: string) {
-		let words: string[] = [];
+		console.log(category);
+		const words: string[] = [];
 		try {
-			const chatCompletion = await groq.chat.completions.create({
-				messages: [
-					{
-						role: "user",
-						content: `Generate a non cached random list of 50 ${category} words separate by semicolon without any introduction or outro`,
-					},
-				],
-				model: "mixtral-8x7b-32768",
-			});
-			const chatContent = chatCompletion.choices[0].message.content;
-			words = chatContent.split(";");
-			if (words[0].includes("Sure") || words[0].includes("here is")) {
-				// remove initial starting stuff...
-				words.splice(0);
-			}
-			this.wordArray = words;
-			console.log("Word Array: " + JSON.stringify(words));
+			const prompt = `
+				List 30 ${category} strings. Using this JSON schema:
+				Words = {"thing": string}
+				Return a list[Words]
+			`;
+
+			const result = await model.generateContent(prompt);
+			const promptText: string = result.response.text();
+			const jsonResponse = JSON.parse(promptText);
+
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+			const arrayOfStrings2 = jsonResponse.map(
+				(item: { thing: string }) => item.thing,
+			);
+			this.wordArray = arrayOfStrings2;
 		} catch (error) {
 			console.log("Error getting words: " + JSON.stringify(error));
 		}
-
-		// const resp = chatCompletion.choices[0].message.content;
 		return words;
 	}
 }
