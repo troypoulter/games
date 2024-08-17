@@ -7,9 +7,8 @@ import { GEMINI_API_KEY } from "@/lib/env";
 
 import { rules } from "./rules";
 
-const API_KEY = GEMINI_API_KEY;
-console.log("API KEY:" + API_KEY);
-const genAI = new GoogleGenerativeAI(API_KEY);
+const API_KEY: string = GEMINI_API_KEY;
+const genAI: GoogleGenerativeAI = new GoogleGenerativeAI(API_KEY);
 
 const model = genAI.getGenerativeModel({
 	model: "gemini-1.5-flash",
