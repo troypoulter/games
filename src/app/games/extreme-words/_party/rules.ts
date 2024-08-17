@@ -16,4 +16,10 @@ export const rules = [
         { rule: "Must keep eye contact with one other person", category: "silly" },
         { rule: "Must use words that have more than one syllable", category: "word" },
         { rule: "Must speak in a deep voice", category: "silly" },
+        { rule: "Must speak in a different accent for each word", category: "silly" },
+        { rule: "Must add 'S' to the start of every word while you desribe", category: "silly" },
+        { rule: "Yaaar be speaking like a pirate matey", category: "silly" },
+        { rule: "Must clap every fifth word", category: "silly" },
+        { rule: "Must say D'OH anytime someone guesses a word wrong", category: "silly" },
+        { rule: "Do your best evil cackle before describing a word", category: "silly" },
 ];
