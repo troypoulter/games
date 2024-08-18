@@ -55,7 +55,9 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 	});
 	const [rule, setRule] = useState<string>();
 	const API_KEY: string = GEMINI_API_KEY;
+	const party_url: string = PARTYKIT_HOST;
 	console.log("Api KEY is: " + API_KEY);
+	console.log("Party URL is: " + party_url);
 
 	const socket = usePartySocket({
 		host: PARTYKIT_HOST,
