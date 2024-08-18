@@ -12,7 +12,7 @@ import InfoButton from "@/app/games/_components/info-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription } from "@/components/ui/card";
 import Select from "@/components/ui/Select";
-import { PARTYKIT_HOST } from "@/lib/env";
+import { GEMINI_API_KEY, PARTYKIT_HOST } from "@/lib/env";
 
 import { Word } from "../../_types/word";
 
@@ -54,6 +54,8 @@ export default function ExtremeWordsUI({ gameId }: { gameId: string }) {
 		minutes: Math.floor((time - 1) / 60),
 	});
 	const [rule, setRule] = useState<string>();
+	const API_KEY: string = GEMINI_API_KEY;
+	console.log("Api KEY is: " + API_KEY);
 
 	const socket = usePartySocket({
 		host: PARTYKIT_HOST,

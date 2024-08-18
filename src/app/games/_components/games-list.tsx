@@ -24,6 +24,11 @@ const games = [
 			"Play numbers in ascending order as a team... it's all about the vibe!",
 		href: "/games/the-mind",
 	},
+	{
+		label: "Music Quiz",
+		description: "Put your music knowledge to the test with this music quiz!",
+		href: "/games/music-quiz",
+	},
 ];
 
 export default function GamesList() {
