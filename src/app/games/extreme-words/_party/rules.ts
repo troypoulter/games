@@ -22,4 +22,5 @@ export const rules = [
         { rule: "Must clap every fifth word", category: "silly" },
         { rule: "Must say D'OH anytime someone guesses a word wrong", category: "silly" },
         { rule: "Do your best evil cackle before describing a word", category: "silly" },
+        { rule: "Must quack like a duck after every word guessed", category: "silly" },
 ];
