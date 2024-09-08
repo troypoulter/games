@@ -112,13 +112,13 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 
 	const changeCell = (row: any, col: any) => {
 		const cellNum = [row, col];
-		// if (divRef.current) {
-		// 	divRef.current.scrollTo({
-		// 		top: cellNum[0] * 48 - 96,
-		// 		left: cellNum[1] * 48 - 96,
-		// 		behavior: "smooth",
-		// 	});
-		// }
+		if (divRef.current) {
+			divRef.current.scrollTo({
+				top: cellNum[0] * 48 - 96,
+				left: cellNum[1] * 48 - 96,
+				behavior: "smooth",
+			});
+		}
 		//TODO Not sure whether to auto scroll? can be a bit headachey...
 		setSelectedCell(cellNum);
 	};
