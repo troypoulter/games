@@ -1,0 +1,79 @@
+.guessRow {
+	display: flex;
+	flex-direction: row;
+	justify-content: center;
+}
+
+.guessSquare {
+	border: 2px solid #d3d6da;
+	width: 35px;
+	height: 35px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 2px;
+}
+/* const styles = StyleSheet.create({
+	guessRow: {
+		flexDirection: "row",
+		justifyContent: "center",
+	},
+	guessSquare: {
+		borderColor: "#d3d6da",
+		borderWidth: 2,
+		width: 35,
+		height: 35,
+		alignItems: "center",
+		justifyContent: "center",
+		margin: 2,
+	},
+	scrollView: {
+		overflowX: "auto",
+		alignSelf: "center",
+		marginLeft: 0,
+		marginTop: 30,
+		marginBottom: 100,
+	},
+	selectedSquare: {
+		borderColor: "#78aef5",
+		borderWidth: 2,
+		width: 35,
+		height: 35,
+		alignItems: "center",
+		justifyContent: "center",
+		margin: 2,
+	},
+	guessLetter: {
+		fontSize: 20,
+		fontWeight: "bold",
+		color: "#878a8c",
+	},
+	container: {
+		justifyContent: "space-between",
+		flex: 1,
+	},
+	notes: {
+		marginTop: 20,
+		textAlign: "center",
+	},
+	directionText: {
+		top: "20%",
+	},
+	// keyboard
+	keyboard: { flexDirection: "column" },
+	keyboardRow: {
+		flexDirection: "row",
+		justifyContent: "center",
+		marginBottom: 10,
+	},
+	key: {
+		backgroundColor: "#d3d6da",
+		padding: 10,
+		margin: 3,
+		borderRadius: 5,
+	},
+	keyLetter: {
+		fontWeight: "500",
+		fontSize: 15,
+	},
+}); */

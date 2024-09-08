@@ -6,6 +6,7 @@
 	"parties": {
 		"extremewords": "src/app/games/extreme-words/_party/extremewords.ts",
 		"musicquiz": "src/app/games/music-quiz/_party/musicquiz.ts",
+		"speedwords": "src/app/games/speed-words/_party/speedwords.ts",
 		"themind": "src/app/games/the-mind/_party/themind.ts",
 		"tictactoe": "src/app/games/tic-tac-toe/_party/tictactoe.ts"
 	}
