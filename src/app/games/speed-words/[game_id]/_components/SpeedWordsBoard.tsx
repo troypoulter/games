@@ -25,8 +25,7 @@ const Cell = (props: { isSelected: any; letter: any }) => (
 			${props.isSelected ? "border-2 border-red-300" : "border-grey-300"}`}
 	>
 		{props.letter != "" && (
-			// mx-5 my-2 rounded-md bg-gray-200 p-3
-			<div className="rounded-md bg-gray-200 px-4 py-2 text-lg font-bold">
+			<div className="rounded-md bg-purple-400 px-4 py-2 text-lg font-bold">
 				{props.letter}
 			</div>
 		)}
