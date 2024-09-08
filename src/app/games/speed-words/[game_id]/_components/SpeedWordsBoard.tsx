@@ -21,10 +21,15 @@ export const getCellLetter = (
 
 const Cell = (props: { isSelected: any; letter: any }) => (
 	<div
-		className={`m-1 flex h-11 w-11 items-center justify-center border border-2 
-			${props.isSelected ? "border-red-300" : "border-grey-300"}`}
+		className={`border-1 flex h-11 w-11 items-center justify-center border 
+			${props.isSelected ? "border-2 border-red-300" : "border-grey-300"}`}
 	>
-		<div className="text-lg font-bold text-gray-500">{props.letter}</div>
+		{props.letter != "" && (
+			// mx-5 my-2 rounded-md bg-gray-200 p-3
+			<div className="rounded-md bg-gray-200 px-4 py-2 text-lg font-bold">
+				{props.letter}
+			</div>
+		)}
 	</div>
 );
 const Row = (props: {
