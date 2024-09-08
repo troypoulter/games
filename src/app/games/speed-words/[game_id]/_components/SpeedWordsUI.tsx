@@ -89,8 +89,8 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 	useEffect(() => {
 		if (divRef.current) {
 			divRef.current.scrollTo({
-				top: selectedCell[0] * 48 - 96,
-				left: selectedCell[1] * 48 - 96,
+				top: selectedCell[0] * 44 - 88,
+				left: selectedCell[1] * 44 - 88,
 				behavior: "auto",
 			});
 		}
@@ -114,8 +114,8 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 		const cellNum = [row, col];
 		if (divRef.current) {
 			divRef.current.scrollTo({
-				top: cellNum[0] * 48 - 96,
-				left: cellNum[1] * 48 - 96,
+				top: cellNum[0] * 44 - 150,
+				left: cellNum[1] * 44 - 150,
 				behavior: "smooth",
 			});
 		}
@@ -165,7 +165,7 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 			<div className="flex items-center justify-center">
 				Welcome to Speed Words
 			</div>
-			<div ref={divRef} className="h-[400px] touch-pinch-zoom overflow-scroll">
+			<div ref={divRef} className="h-[400px] overflow-scroll">
 				<SpeedWordsBoard
 					letterGrid={letterGrid}
 					selectedCell={selectedCell}

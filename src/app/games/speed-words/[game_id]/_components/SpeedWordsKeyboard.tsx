@@ -17,22 +17,31 @@ export const Keyboard = ({
 	}
 	keyRows.push(kl);
 
+	const handleDirectionPress = () => {
+		setAutoDirect(autoDirect === "→" ? "↓" : "→");
+	};
+
 	return (
 		<div className="absolute bottom-0 left-1/2 -translate-x-1/2 transform">
 			<div className="flex-col">
-				<DirectionRow autoDirect={autoDirect} setAutoDirect={setAutoDirect} />
 				{keyRows.map((kr, idx) => (
 					<KeyboardRow key={idx} rowLetters={kr} onKeyPress={onKeyPress} />
 				))}
-				<div className="mb-10 flex justify-center">
-					<div onClick={() => onKeyPress("PEEL")}>
-						<div className="mx-5 my-2 rounded-md bg-gray-200 p-3">
-							<div className="text-sm font-medium">PEEL</div>
+				<div className="mb-10 flex items-center justify-center">
+					<div>Direction: </div>
+					<div onClick={() => handleDirectionPress()}>
+						<div className="my-2 ml-1 mr-5 rounded-md bg-blue-500 p-3">
+							<div className="text-sm font-medium"> {autoDirect} </div>
 						</div>
 					</div>
 					<div onClick={() => onKeyPress("⌫")}>
-						<div className="mx-5 my-2 rounded-md bg-gray-200 p-3">
+						<div className="mx-5 my-2 rounded-md bg-blue-500 p-3">
 							<div className="text-sm font-medium">⌫</div>
+						</div>
+					</div>
+					<div onClick={() => onKeyPress("PEEL")}>
+						<div className="mx-5 my-2 rounded-md bg-blue-500 p-3">
+							<div className="text-sm font-medium">PEEL</div>
 						</div>
 					</div>
 				</div>
@@ -45,27 +54,10 @@ const KeyboardRow = ({ onKeyPress, rowLetters }: any) => (
 	<div className="mb-2 flex justify-center">
 		{rowLetters.map((letter: any, idx: any) => (
 			<div key={idx} onClick={() => onKeyPress(letter, idx)}>
-				<div className="m-1 rounded-md bg-gray-200 p-3">
-					<div className="text-xs font-medium">{letter}</div>
+				<div className="m-1 rounded-md bg-purple-400 p-3">
+					<div className="px-1 text-sm font-medium">{letter}</div>
 				</div>
 			</div>
 		))}
 	</div>
 );
-
-export const DirectionRow = ({ autoDirect, setAutoDirect }: any) => {
-	const handleDirectionPress = () => {
-		setAutoDirect(autoDirect === "→" ? "↓" : "→");
-	};
-
-	return (
-		<div className="flex flex-row items-center justify-center">
-			<div>Direction: </div>
-			<div onClick={() => handleDirectionPress()}>
-				<div className="m-1 ml-3 rounded-md bg-gray-200 p-3">
-					<div className="text-xs font-medium"> {autoDirect} </div>
-				</div>
-			</div>
-		</div>
-	);
-};
