@@ -257,27 +257,8 @@ export const initLetterPool = () => {
 		"S",
 	];
 	console.log("Initing Letter Pool");
-	return tinyLetters;
+	return letters;
 };
-
-export const treeLetters = [
-	"A",
-	"B",
-	"C",
-	"D",
-	"E",
-	"F",
-	"G",
-	"H",
-	"I",
-	"J",
-	"K",
-	"L",
-	"M",
-	"N",
-	"O",
-	"P",
-];
 
 export const getLetters = (
 	numLetters: any,
