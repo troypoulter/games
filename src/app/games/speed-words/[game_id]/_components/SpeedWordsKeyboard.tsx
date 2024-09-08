@@ -11,7 +11,7 @@ export const Keyboard = ({
 }: any) => {
 	const kl = [...letters];
 	const keyRows = [];
-	while (kl.length > 10) {
+	while (kl.length >= 10) {
 		const row = kl.splice(0, 9);
 		keyRows.push(row);
 	}
@@ -54,7 +54,7 @@ const KeyboardRow = ({ onKeyPress, rowLetters }: any) => (
 	<div className="mb-2 flex justify-center">
 		{rowLetters.map((letter: any, idx: any) => (
 			<div key={idx} onClick={() => onKeyPress(letter, idx)}>
-				<div className="m-1 rounded-md bg-purple-400 p-3">
+				<div className="m-0.5 rounded-md bg-purple-400 p-3">
 					<div className="px-1 text-sm font-medium">{letter}</div>
 				</div>
 			</div>
