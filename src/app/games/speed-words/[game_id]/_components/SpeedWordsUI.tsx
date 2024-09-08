@@ -19,7 +19,6 @@ import {
 	handleLetterPress,
 	handlePeel,
 	initLetterPool,
-	treeLetters,
 } from "./letterFunctions";
 import SpeedWordsBoard from "./SpeedWordsBoard";
 import { Keyboard } from "./SpeedWordsKeyboard";
@@ -77,7 +76,7 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 
 	const [selectedCell, setSelectedCell] = useState([15, 15]);
 	const [letterGrid, setLetterGrid] = useState(() => initLetterGrid());
-	const [letterPool, setLetterPool] = useState<any>(treeLetters);
+	const [letterPool, setLetterPool] = useState<any>(() => initLetterPool());
 	const [autoDirect, setAutoDirect] = useState("→");
 	const [keyboardLetters, setKeyBoardLetters] = useState<any>();
 
