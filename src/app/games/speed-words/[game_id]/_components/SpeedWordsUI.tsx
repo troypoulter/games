@@ -165,7 +165,7 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 			<div className="flex items-center justify-center">
 				Welcome to Speed Words
 			</div>
-			<div ref={divRef} className="h-[400px] overflow-scroll">
+			<div ref={divRef} className="h-[400px] touch-pinch-zoom overflow-scroll">
 				<SpeedWordsBoard
 					letterGrid={letterGrid}
 					selectedCell={selectedCell}
