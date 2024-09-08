@@ -372,5 +372,5 @@ export const handleBackspacePress = (
 			cellNum[0] = cellNum[0] - 1;
 		}
 	}
-	changeCell(cellNum);
+	changeCell(cellNum[0], cellNum[1]);
 };
