@@ -25,9 +25,9 @@ const games = [
 		href: "/games/the-mind",
 	},
 	{
-		label: "Music Quiz",
-		description: "Put your music knowledge to the test with this music quiz!",
-		href: "/games/music-quiz",
+		label: "Speed Words",
+		description: "Play your tiles to make words as fast as you can!",
+		href: "/games/speed-words",
 	},
 ];
 

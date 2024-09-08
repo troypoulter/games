@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 import { createExtremeWordsGame } from "../games/extreme-words/_actions/create-extremewords-game";
 import { createMusicQuizGame } from "../games/music-quiz/_actions/create-musicquiz-game";
+import { createSpeedWordsGame } from "../games/speed-words/_actions/create-speedwords-game";
 import { createTheMindGame } from "../games/the-mind/_actions/create-themind-game";
 
 function CreateGameButton() {
@@ -34,6 +35,8 @@ export default function CreateGameRoomForm({ game }: { game: string }) {
 			await createExtremeWordsGame(room);
 		} else if (game === "music-quiz") {
 			await createMusicQuizGame(room);
+		} else if (game === "speed-words") {
+			await createSpeedWordsGame(room);
 		}
 	}
 
