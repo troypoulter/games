@@ -13,13 +13,7 @@ import { useEffect, useRef, useState } from "react";
 // import SpotifyPlayer from "react-spotify-web-playback";
 import { PARTYKIT_HOST } from "@/lib/env";
 
-import {
-	getLetters,
-	handleBackspacePress,
-	handleLetterPress,
-	handlePeel,
-	initLetterPool,
-} from "./letterFunctions";
+import { handleBackspacePress, handleLetterPress } from "./letterFunctions";
 import SpeedWordsBoard from "./SpeedWordsBoard";
 import { Keyboard } from "./SpeedWordsKeyboard";
 
@@ -76,9 +70,8 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 
 	const [selectedCell, setSelectedCell] = useState([15, 15]);
 	const [letterGrid, setLetterGrid] = useState(() => initLetterGrid());
-	const [letterPool, setLetterPool] = useState<any>(() => initLetterPool());
 	const [autoDirect, setAutoDirect] = useState("→");
-	const [keyboardLetters, setKeyBoardLetters] = useState<any>();
+	const [keyboardLetters, setKeyBoardLetters] = useState<any>([]);
 
 	const socket = usePartySocket({
 		host: PARTYKIT_HOST,
@@ -94,19 +87,15 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 				behavior: "auto",
 			});
 		}
-		console.log("setting keyboard letters");
-		if (!initialized.current) {
-			initialized.current = true;
-			const initLetters = getLetters(9, letterPool, setLetterPool);
-			setKeyBoardLetters(initLetters);
-		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	socket.onmessage = (response) => {
 		const mess = JSON.parse(response.data);
-		if (mess.message === "startGame") {
-			console.log("Starting the game!");
+		if (mess.message === "peel") {
+			console.log("Peeling from Partykit");
+			console.log("Response: " + JSON.stringify(mess));
+			handlePeel(mess.data.letters);
 		}
 	};
 
@@ -123,16 +112,24 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 		setSelectedCell(cellNum);
 	};
 
+	const handlePeel = (letters: any) => {
+		const newLetters = letters;
+		console.log("New Letters: " + JSON.stringify(newLetters));
+		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
+		const allLetters = keyboardLetters.concat(newLetters);
+		setKeyBoardLetters(allLetters);
+	};
+
+	const sendPeel = () => {
+		const data = { uniqueId: 123 };
+		socket.send(JSON.stringify({ message: "peel", data: data }));
+	};
+
 	const handleKeyPress = (letter: string, idx: number) => {
 		console.log("Letter is: " + letter);
 		if (letter == "PEEL") {
 			console.log("Peeling now");
-			handlePeel(
-				keyboardLetters,
-				setKeyBoardLetters,
-				letterPool,
-				setLetterPool,
-			);
+			sendPeel();
 			return;
 		} else if (letter == "⌫") {
 			handleBackspacePress(

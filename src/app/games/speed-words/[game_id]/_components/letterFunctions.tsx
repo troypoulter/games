@@ -257,19 +257,14 @@ export const initLetterPool = () => {
 		"S",
 	];
 	console.log("Initing Letter Pool");
-	return letters;
+	return fullLetters;
 };
 
-export const getLetters = (
-	numLetters: any,
-	letterPool: any[],
-	setLetterPool: any,
-) => {
+export const getLetters = (numLetters: any, letterPool: any[]) => {
 	console.log("Getting Letters");
 	console.log("Existing Pool: " + JSON.stringify(letterPool));
-	const shuffledLetters = letterPool.sort(() => 0.5 - Math.random());
-	const selectedLetters = shuffledLetters.splice(0, numLetters);
-	// setLetterPool(shuffledLetters); // Update Letter Pool
+	letterPool.sort(() => 0.5 - Math.random());
+	const selectedLetters = letterPool.splice(0, numLetters);
 	return selectedLetters;
 };
 
@@ -310,17 +305,6 @@ export const handleLetterPress = (
 	}
 	setKeyBoardLetters(keyboardLetters);
 	changeCell(cellNum[0], cellNum[1]); //setSelectedCell(cellNum);
-};
-
-export const handlePeel = (
-	keyboardLetters: any,
-	setKeyBoardLetters: any,
-	letterPool: any,
-	setLetterPool: any,
-) => {
-	const newLetters = getLetters(3, letterPool, setLetterPool);
-	const allLetters = keyboardLetters.concat(newLetters);
-	setKeyBoardLetters(allLetters);
 };
 
 export const handleBackspacePress = (
