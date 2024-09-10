@@ -73,6 +73,7 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 	const [letterGrid, setLetterGrid] = useState(() => initLetterGrid());
 	const [autoDirect, setAutoDirect] = useState("→");
 	const [keyboardLetters, setKeyBoardLetters] = useState<any>([]);
+	const [gameRunning, setGameRunning] = useState<boolean>(false);
 	const [lettersLeft, setLettersLeft] = useState<number>(0);
 
 	const socket = usePartySocket({
@@ -92,6 +93,7 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 			setLettersLeft(mess.data.lettersLeft);
 		}
 		if (mess.message === "startGame") {
+			setGameRunning(true);
 			if (divRef.current) {
 				divRef.current.scrollTo({
 					top: selectedCell[0] * 36 - 200,
@@ -167,23 +169,22 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 
 	return (
 		<div>
-			{!keyboardLetters ||
-				(keyboardLetters.length == 0 && (
-					<>
-						<div className="flex items-center justify-center">
-							Welcome to Speed Words
-						</div>
-						<div className="mt-6 flex flex-col items-center">
-							<Button
-								className="transform bg-green-500 px-4 hover:bg-green-500/90"
-								onClick={() => startGame()}
-							>
-								<div className="flex items-center">Start Round</div>
-							</Button>
-						</div>
-					</>
-				))}
-			{keyboardLetters && keyboardLetters.length > 0 && (
+			{!gameRunning && (
+				<>
+					<div className="flex items-center justify-center">
+						Welcome to Speed Words
+					</div>
+					<div className="mt-6 flex flex-col items-center">
+						<Button
+							className="transform bg-green-500 px-4 hover:bg-green-500/90"
+							onClick={() => startGame()}
+						>
+							<div className="flex items-center">Start Round</div>
+						</Button>
+					</div>
+				</>
+			)}
+			{gameRunning && (
 				<>
 					<div ref={divRef} className="h-[400px] overflow-scroll">
 						<SpeedWordsBoard
