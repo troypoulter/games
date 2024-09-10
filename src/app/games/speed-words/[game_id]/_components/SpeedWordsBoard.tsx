@@ -21,11 +21,11 @@ export const getCellLetter = (
 
 const Cell = (props: { isSelected: any; letter: any }) => (
 	<div
-		className={`border-1 flex h-11 w-11 items-center justify-center border 
+		className={`border-1 flex h-8 w-8 items-center justify-center border 
 			${props.isSelected ? "border-2 border-red-300" : "border-grey-300"}`}
 	>
 		{props.letter != "" && (
-			<div className="rounded-md bg-purple-400 px-4 py-2 text-lg font-bold">
+			<div className="text-m flex h-8 w-8 items-center justify-center rounded-sm bg-purple-400 font-bold">
 				{props.letter}
 			</div>
 		)}

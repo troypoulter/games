@@ -10,6 +10,7 @@
 import usePartySocket from "partysocket/react";
 import { useEffect, useRef, useState } from "react";
 
+import { Button } from "@/components/ui/button";
 // import SpotifyPlayer from "react-spotify-web-playback";
 import { PARTYKIT_HOST } from "@/lib/env";
 
@@ -72,23 +73,13 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 	const [letterGrid, setLetterGrid] = useState(() => initLetterGrid());
 	const [autoDirect, setAutoDirect] = useState("→");
 	const [keyboardLetters, setKeyBoardLetters] = useState<any>([]);
+	const [lettersLeft, setLettersLeft] = useState<number>(0);
 
 	const socket = usePartySocket({
 		host: PARTYKIT_HOST,
 		room: gameId,
 		party: "speedwords",
 	});
-
-	useEffect(() => {
-		if (divRef.current) {
-			divRef.current.scrollTo({
-				top: selectedCell[0] * 44 - 88,
-				left: selectedCell[1] * 44 - 88,
-				behavior: "auto",
-			});
-		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
 
 	socket.onmessage = (response) => {
 		const mess = JSON.parse(response.data);
@@ -97,14 +88,26 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 			console.log("Response: " + JSON.stringify(mess));
 			handlePeel(mess.data.letters);
 		}
+		if (mess.message === "lettersLeft") {
+			setLettersLeft(mess.data.lettersLeft);
+		}
+		if (mess.message === "startGame") {
+			if (divRef.current) {
+				divRef.current.scrollTo({
+					top: selectedCell[0] * 36 - 200,
+					left: selectedCell[1] * 36 - 200,
+					behavior: "auto",
+				});
+			}
+		}
 	};
 
 	const changeCell = (row: any, col: any) => {
 		const cellNum = [row, col];
 		if (divRef.current) {
 			divRef.current.scrollTo({
-				top: cellNum[0] * 44 - 150,
-				left: cellNum[1] * 44 - 150,
+				top: cellNum[0] * 36 - 200,
+				left: cellNum[1] * 36 - 200,
 				behavior: "smooth",
 			});
 		}
@@ -123,6 +126,11 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 	const sendPeel = () => {
 		const data = { uniqueId: 123 };
 		socket.send(JSON.stringify({ message: "peel", data: data }));
+	};
+
+	const startGame = () => {
+		const data = { uniqueId: 123 };
+		socket.send(JSON.stringify({ message: "startGame", data: data }));
 	};
 
 	const handleKeyPress = (letter: string, idx: number) => {
@@ -159,23 +167,41 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 
 	return (
 		<div>
-			<div className="flex items-center justify-center">
-				Welcome to Speed Words
-			</div>
-			<div ref={divRef} className="h-[400px] overflow-scroll">
-				<SpeedWordsBoard
-					letterGrid={letterGrid}
-					selectedCell={selectedCell}
-					changeCell={changeCell}
-				/>
-			</div>
-			{keyboardLetters && (
-				<Keyboard
-					letters={keyboardLetters}
-					onKeyPress={handleKeyPress}
-					autoDirect={autoDirect}
-					setAutoDirect={setAutoDirect}
-				/>
+			{!keyboardLetters ||
+				(keyboardLetters.length == 0 && (
+					<>
+						<div className="flex items-center justify-center">
+							Welcome to Speed Words
+						</div>
+						<div className="mt-6 flex flex-col items-center">
+							<Button
+								className="transform bg-green-500 px-4 hover:bg-green-500/90"
+								onClick={() => startGame()}
+							>
+								<div className="flex items-center">Start Round</div>
+							</Button>
+						</div>
+					</>
+				))}
+			{keyboardLetters && keyboardLetters.length > 0 && (
+				<>
+					<div ref={divRef} className="h-[400px] overflow-scroll">
+						<SpeedWordsBoard
+							letterGrid={letterGrid}
+							selectedCell={selectedCell}
+							changeCell={changeCell}
+						/>
+					</div>
+					<Keyboard
+						letters={keyboardLetters}
+						onKeyPress={handleKeyPress}
+						autoDirect={autoDirect}
+						setAutoDirect={setAutoDirect}
+					/>
+					<div className="absolute bottom-0 left-1/2 -translate-x-1/2 transform">
+						Letters Left: {lettersLeft}
+					</div>
+				</>
 			)}
 		</div>
 	);
