@@ -69,7 +69,7 @@ export default function TicTacToeUI({
 		},
 	});
 
-	const changeCell = (row: number, col: number) => {
+	const setSelectedCell = (row: number, col: number) => {
 		if (!gameState?.board) return;
 
 		if (gameState.board[row][col] === null) {
@@ -121,7 +121,7 @@ export default function TicTacToeUI({
 						<div
 							key={`${rowIndex}-${colIndex}`}
 							className="flex h-20 w-20 cursor-pointer items-center justify-center bg-gray-200 text-2xl hover:bg-gray-300"
-							onClick={() => changeCell(rowIndex, colIndex)}
+							onClick={() => setSelectedCell(rowIndex, colIndex)}
 						>
 							{cell}
 						</div>
