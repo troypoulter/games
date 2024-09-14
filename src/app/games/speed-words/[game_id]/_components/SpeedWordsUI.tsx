@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -14,55 +15,8 @@ import { Button } from "@/components/ui/button";
 // import SpotifyPlayer from "react-spotify-web-playback";
 import { PARTYKIT_HOST } from "@/lib/env";
 
-import { handleBackspacePress, handleLetterPress } from "./letterFunctions";
 import SpeedWordsBoard from "./SpeedWordsBoard";
 import { Keyboard } from "./SpeedWordsKeyboard";
-
-const initLetterGrid = () => {
-	const letterGrid = {
-		0: {},
-		1: {},
-		2: {},
-		3: {},
-		4: {},
-		5: {},
-		6: {},
-		7: {},
-		8: {},
-		9: {},
-		10: {},
-		11: {},
-		12: {},
-		13: {},
-		14: {},
-		15: {},
-		16: {},
-		17: {},
-		18: {},
-		19: {},
-		20: {},
-		21: {},
-		22: {},
-		23: {},
-		24: {},
-		25: {},
-		26: {},
-		27: {},
-		28: {},
-		29: {},
-		30: {},
-		31: {},
-		32: {},
-		33: {},
-		34: {},
-		35: {},
-		36: {},
-		37: {},
-		38: {},
-		39: {},
-	};
-	return letterGrid;
-};
 
 export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 	const room = gameId;
@@ -70,11 +24,12 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 	const divRef = useRef<HTMLDivElement>(null);
 
 	const [selectedCell, setSelectedCell] = useState([15, 15]);
-	const [letterGrid, setLetterGrid] = useState(() => initLetterGrid());
+	const [letterGrid, setLetterGrid] = useState();
 	const [autoDirect, setAutoDirect] = useState("→");
 	const [keyboardLetters, setKeyBoardLetters] = useState<any>([]);
 	const [gameRunning, setGameRunning] = useState<boolean>(false);
 	const [lettersLeft, setLettersLeft] = useState<number>(0);
+	const [color, setColor] = useState<string>();
 
 	const socket = usePartySocket({
 		host: PARTYKIT_HOST,
@@ -82,47 +37,46 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 		party: "speedwords",
 	});
 
+	useEffect(() => {
+		if (divRef.current) {
+			divRef.current.scrollTo({
+				top: selectedCell[0] * 36 - 200,
+				left: selectedCell[1] * 36 - 200,
+				behavior: "auto",
+			});
+		}
+	}, [gameRunning, selectedCell]);
+
 	socket.onmessage = (response) => {
 		const mess = JSON.parse(response.data);
 		if (mess.message === "peel") {
-			console.log("Peeling from Partykit");
-			console.log("Response: " + JSON.stringify(mess));
 			handlePeel(mess.data.letters);
 		}
 		if (mess.message === "lettersLeft") {
 			setLettersLeft(mess.data.lettersLeft);
 		}
 		if (mess.message === "startGame") {
+			setLetterGrid(mess.data.letterGrid);
+			console.log("Color is: " + mess.data.color);
+			setColor(mess.data.color);
+			handlePeel(mess.data.letters);
 			setGameRunning(true);
-			if (divRef.current) {
-				divRef.current.scrollTo({
-					top: selectedCell[0] * 36 - 200,
-					left: selectedCell[1] * 36 - 200,
-					behavior: "auto",
-				});
-			}
 		}
-	};
-
-	const changeCell = (row: any, col: any) => {
-		const cellNum = [row, col];
-		if (divRef.current) {
-			divRef.current.scrollTo({
-				top: cellNum[0] * 36 - 200,
-				left: cellNum[1] * 36 - 200,
-				behavior: "smooth",
-			});
+		if (mess.message === "letterGridUpdate") {
+			setLetterGrid(mess.data.letterGrid);
 		}
-		//TODO Not sure whether to auto scroll? can be a bit headachey...
-		setSelectedCell(cellNum);
 	};
 
 	const handlePeel = (letters: any) => {
 		const newLetters = letters;
 		console.log("New Letters: " + JSON.stringify(newLetters));
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-call
 		const allLetters = keyboardLetters.concat(newLetters);
 		setKeyBoardLetters(allLetters);
+	};
+
+	const sendLetter = (letter: string) => {
+		const data = { letter: letter, selectedCell: selectedCell, color: color };
+		socket.send(JSON.stringify({ message: "playLetter", data: data }));
 	};
 
 	const sendPeel = () => {
@@ -130,41 +84,42 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 		socket.send(JSON.stringify({ message: "peel", data: data }));
 	};
 
-	const startGame = () => {
+	const sendStartGame = () => {
 		const data = { uniqueId: 123 };
 		socket.send(JSON.stringify({ message: "startGame", data: data }));
 	};
 
+	const sendBackSpace = () => {
+		const data = { selectedCell: selectedCell, color: color };
+		socket.send(JSON.stringify({ message: "backspace", data: data }));
+		autoMove(selectedCell, autoDirect, true);
+	};
+
+	const autoMove = (
+		selectedCell: any,
+		autoDirect: string,
+		isbackspace: boolean,
+	) => {
+		const idx = isbackspace ? -1 : 1;
+		const newCellNum = selectedCell;
+		if (autoDirect == "→") {
+			if (newCellNum[1] < 39) {
+				newCellNum[1] = selectedCell[1] + idx;
+			}
+		} else {
+			if (newCellNum[0] < 39) {
+				newCellNum[0] = selectedCell[0] + idx;
+			}
+		}
+		setSelectedCell(newCellNum);
+	};
+
 	const handleKeyPress = (letter: string, idx: number) => {
 		console.log("Letter is: " + letter);
-		if (letter == "PEEL") {
-			console.log("Peeling now");
-			sendPeel();
-			return;
-		} else if (letter == "⌫") {
-			handleBackspacePress(
-				autoDirect,
-				selectedCell,
-				letterGrid,
-				setLetterGrid,
-				changeCell,
-				keyboardLetters,
-				setKeyBoardLetters,
-			);
-			return;
-		} else {
-			handleLetterPress(
-				autoDirect,
-				selectedCell,
-				letter,
-				letterGrid,
-				setLetterGrid,
-				changeCell,
-				keyboardLetters,
-				setKeyBoardLetters,
-				idx,
-			);
-		}
+		sendLetter(letter);
+		keyboardLetters.splice(idx, 1);
+		setKeyBoardLetters(keyboardLetters);
+		autoMove(selectedCell, autoDirect, false);
 	};
 
 	return (
@@ -176,8 +131,8 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 					</div>
 					<div className="mt-6 flex flex-col items-center">
 						<Button
-							className="transform bg-green-500 px-4 hover:bg-green-500/90"
-							onClick={() => startGame()}
+							className={`transform bg-green-500 px-4 hover:bg-green-500/90`}
+							onClick={() => sendStartGame()}
 						>
 							<div className="flex items-center">Start Round</div>
 						</Button>
@@ -190,7 +145,7 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 						<SpeedWordsBoard
 							letterGrid={letterGrid}
 							selectedCell={selectedCell}
-							changeCell={changeCell}
+							setSelectedCell={setSelectedCell}
 						/>
 					</div>
 					<Keyboard
@@ -198,6 +153,9 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 						onKeyPress={handleKeyPress}
 						autoDirect={autoDirect}
 						setAutoDirect={setAutoDirect}
+						sendPeel={sendPeel}
+						color={color}
+						handleBackSpace={sendBackSpace}
 					/>
 					<div className="absolute bottom-0 left-1/2 -translate-x-1/2 transform">
 						Letters Left: {lettersLeft}

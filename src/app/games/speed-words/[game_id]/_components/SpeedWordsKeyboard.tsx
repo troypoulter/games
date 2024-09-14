@@ -8,6 +8,9 @@ export const Keyboard = ({
 	onKeyPress,
 	autoDirect,
 	setAutoDirect,
+	sendPeel,
+	color,
+	handleBackSpace,
 }: any) => {
 	const kl = [...letters];
 	const keyRows = [];
@@ -25,7 +28,12 @@ export const Keyboard = ({
 		<div className="absolute bottom-0 left-1/2 -translate-x-1/2 transform">
 			<div className="flex-col">
 				{keyRows.map((kr, idx) => (
-					<KeyboardRow key={idx} rowLetters={kr} onKeyPress={onKeyPress} />
+					<KeyboardRow
+						key={idx}
+						rowLetters={kr}
+						onKeyPress={onKeyPress}
+						color={color}
+					/>
 				))}
 				<div className="mb-10 flex items-center justify-center">
 					<div>Direction: </div>
@@ -34,12 +42,12 @@ export const Keyboard = ({
 							<div className="text-sm font-medium"> {autoDirect} </div>
 						</div>
 					</div>
-					<div onClick={() => onKeyPress("⌫")}>
+					<div onClick={() => handleBackSpace()}>
 						<div className="mx-5 my-2 rounded-md bg-blue-500 p-3">
 							<div className="text-sm font-medium">⌫</div>
 						</div>
 					</div>
-					<div onClick={() => onKeyPress("PEEL")}>
+					<div onClick={() => sendPeel()}>
 						<div className="mx-5 my-2 rounded-md bg-blue-500 p-3">
 							<div className="text-sm font-medium">PEEL</div>
 						</div>
@@ -50,11 +58,11 @@ export const Keyboard = ({
 	);
 };
 
-const KeyboardRow = ({ onKeyPress, rowLetters }: any) => (
+const KeyboardRow = ({ onKeyPress, rowLetters, color }: any) => (
 	<div className="mb-2 flex justify-center">
 		{rowLetters.map((letter: any, idx: any) => (
 			<div key={idx} onClick={() => onKeyPress(letter, idx)}>
-				<div className="m-0.5 rounded-md bg-purple-400 p-3">
+				<div className={`m-0.5 rounded-md ${color} p-3`}>
 					<div className="px-1 text-sm font-medium">{letter}</div>
 				</div>
 			</div>

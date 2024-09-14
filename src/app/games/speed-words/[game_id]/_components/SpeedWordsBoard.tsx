@@ -1,3 +1,4 @@
+/* eslint-disable typescript-sort-keys/interface */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -19,20 +20,24 @@ export const getCellLetter = (
 	return "";
 };
 
-const Cell = (props: { isSelected: any; letter: any }) => (
-	<div
-		className={`border-1 flex h-8 w-8 items-center justify-center border 
+const Cell = (props: { isSelected: any; letter: any }) => {
+	return (
+		<div
+			className={`border-1 flex h-8 w-8 items-center justify-center border 
 			${props.isSelected ? "border-2 border-red-300" : "border-grey-300"}`}
-	>
-		{props.letter != "" && (
-			<div className="text-m flex h-8 w-8 items-center justify-center rounded-sm bg-purple-400 font-bold">
-				{props.letter}
-			</div>
-		)}
-	</div>
-);
+		>
+			{props.letter != "" && (
+				<div
+					className={`text-m flex h-8 w-8 items-center justify-center rounded-sm ${props.letter.color} font-bold`}
+				>
+					{props.letter.letter}
+				</div>
+			)}
+		</div>
+	);
+};
 const Row = (props: {
-	changeCell: any;
+	setSelectedCell: any;
 	letterGrid: any;
 	rowNum: any;
 	selectedCell: any;
@@ -47,7 +52,10 @@ const Row = (props: {
 			isSelected = true;
 		}
 		cells.push(
-			<div key={colNum} onClick={() => props.changeCell(props.rowNum, colNum)}>
+			<div
+				key={colNum}
+				onClick={() => props.setSelectedCell([props.rowNum, colNum])}
+			>
 				<Cell
 					letter={getCellLetter(props.rowNum, colNum, props.letterGrid)}
 					isSelected={isSelected}
@@ -60,7 +68,7 @@ const Row = (props: {
 export const getRows = (
 	letterGrid: any,
 	selectedCell: any,
-	changeCell: any,
+	setSelectedCell: any,
 ) => {
 	const rows = [];
 	for (let i = 0; i < 30; i++) {
@@ -70,7 +78,7 @@ export const getRows = (
 				letterGrid={letterGrid}
 				rowNum={i}
 				selectedCell={selectedCell}
-				changeCell={changeCell}
+				setSelectedCell={setSelectedCell}
 			/>,
 		);
 	}
@@ -80,15 +88,15 @@ export const getRows = (
 export default function SpeedWordsBoard({
 	letterGrid,
 	selectedCell,
-	changeCell,
+	setSelectedCell,
 }: {
-	changeCell: any;
+	setSelectedCell: any;
 	letterGrid: any;
 	selectedCell: any;
 }) {
 	return (
 		<div className="mt-30 mb-100 ml-0">
-			{getRows(letterGrid, selectedCell, changeCell)}
+			{getRows(letterGrid, selectedCell, setSelectedCell)}
 		</div>
 	);
 }
