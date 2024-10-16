@@ -17,8 +17,10 @@ jobs:
           node-version: 20
           cache: "npm"
       - run: npm ci
-      - run: npx partykit deploy --var GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}
+      - name: Create temporary .env file
+        run: |
+          echo "GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY }}" > .env
+      - run: npx partykit deploy --with-vars
         env:
           PARTYKIT_TOKEN: ${{ secrets.PARTYKIT_TOKEN }}
           PARTYKIT_LOGIN: ${{ secrets.PARTYKIT_LOGIN }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
