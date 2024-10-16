@@ -85,6 +85,7 @@ export default class ExtremeWordsServer implements Party.Server {
 		console.log(category);
 		const words: string[] = [];
 		try {
+			console.log("Generating words...");
 			const prompt = `
 				List 30 ${category} strings. Using this JSON schema:
 				Words = {"thing": string}
