@@ -230,9 +230,12 @@ export default function TheMindGame({ gameId }: { gameId: string }) {
 					</div>
 				)}
 			</div>
-			<div className="row absolute inset-x-0 bottom-0 flex items-end justify-evenly">
-				<Keyboard onClick={handleKeyPress} cards={cards} gameState="play" />
-			</div>
+
+			{!gameOver && (
+				<div className="row absolute inset-x-0 bottom-0 flex items-end justify-evenly">
+					<Keyboard onClick={handleKeyPress} cards={cards} gameState="play" />
+				</div>
+			)}
 			{(gameOver || !totalCards) && (
 				<div className="row absolute inset-x-0 bottom-0 flex items-end justify-evenly">
 					<DealButton cardsToDeal={cardsToDeal} onClick={handleDeal} />
