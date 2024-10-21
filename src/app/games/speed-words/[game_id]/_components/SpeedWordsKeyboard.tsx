@@ -1,7 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
+
+import { getBgColor } from "@/app/functions/color-functions";
+
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 export const Keyboard = ({
 	letters,
@@ -62,7 +66,7 @@ const KeyboardRow = ({ onKeyPress, rowLetters, color }: any) => (
 	<div className="mb-2 flex justify-center">
 		{rowLetters.map((letter: any, idx: any) => (
 			<div key={idx} onClick={() => onKeyPress(letter, idx)}>
-				<div className={`m-0.5 rounded-md ${color} p-3`}>
+				<div className={`m-0.5 rounded-md ${getBgColor(color)} p-3`}>
 					<div className="px-1 text-sm font-medium">{letter}</div>
 				</div>
 			</div>

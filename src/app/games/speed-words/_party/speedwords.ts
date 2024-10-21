@@ -16,30 +16,30 @@ import {
 export interface Player {
 	color: string;
 	connection: Party.Connection;
+	name: string;
 }
 
 export default class SpeedWordsServer implements Party.Server {
 	constructor(readonly room: Party.Room) {}
 	gameExists: boolean = false;
-	gamePlayers: number = 0;
 	token: string = "";
 	letterPool: string[] = [];
 	letterGrid: any = {};
 	colors: string[] = [
-		"bg-red-500",
-		"bg-orange-500",
-		"bg-yellow-500",
-		"bg-amber-500",
-		"bg-lime-500",
-		"bg-green-500",
-		"bg-blue-500",
-		"bg-cyan-500",
-		"bg-rose-500",
-		"bg-indigo-500",
-		"bg-violet-500",
-		"bg-pink-500",
-		"bg-fuchsia-500",
-		"bg-purple-500",
+		"red",
+		"orange",
+		"yellow",
+		"amber",
+		"lime",
+		"green",
+		"blue",
+		"cyan",
+		"rose",
+		"indigo",
+		"violet",
+		"pink",
+		"fuchsia",
+		"purple",
 	];
 	players: Player[] = [];
 
@@ -47,38 +47,25 @@ export default class SpeedWordsServer implements Party.Server {
 		console.log("Partykit server starting up");
 	}
 
-	// onConnect(connection: Party.Connection) {
-	// 	console.log("Got to onConnect: " + JSON.stringify(connection));
-	// 	// // when a new client connects, send them letters
-	// 	// const newLetters = getLetters(7, this.letterPool);
-	// 	// const response = {
-	// 	// 	message: "peel",
-	// 	// 	data: { letters: newLetters },
-	// 	// };
-	// 	// connection.send(JSON.stringify(response));
-	// 	// this.broadcastLettersLeft();
-	// }
-
 	// This Method Creates or returns the room
 	async onRequest(req: Party.Request) {
 		console.log("Got to OnRequest...");
 		// TODO create or return room
 		if (req.method === "POST") {
-			const message: string = await req.json();
+			const message: any = await req.json();
 			console.log("Got to OnRequest. Message: " + JSON.stringify(message));
-			this.gamePlayers++;
+
 			if (this.gameExists) {
 				console.log(
-					`Game of Speed Words exists, returning game! There are ${this.gamePlayers} players`,
+					`Game of Speed Words exists, returning game! There are ${this.players.length} players`,
 				);
 			} else {
 				this.gameExists = true;
 				console.log(
-					`Game of Speed Words does not exist, creating game! There are ${this.gamePlayers} players`,
+					`Game of Speed Words does not exist, creating game! There are ${this.players.length} players`,
 				);
 			}
 		}
-
 		if (this.gameExists) {
 			return new Response("You got the party kit server!", {
 				status: 200,
@@ -88,10 +75,31 @@ export default class SpeedWordsServer implements Party.Server {
 		return new Response("Not found", { status: 404 });
 	}
 
+	async onConnect(connection: Party.Connection, ctx: Party.ConnectionContext) {
+		const queryParams = this.extractQueryParams(ctx.request.url);
+		console.log("Got to onConnect: " + queryParams.name || "Fred");
+		this.players.push({
+			connection: connection,
+			name: queryParams.name || `Player ${this.players.length + 1}`,
+			color: getColor(this.colors),
+		});
+		const simpPlayers = this.players.map((player) => ({
+			name: player.name,
+			color: player.color,
+		}));
+		const response = {
+			message: "playerList",
+			data: {
+				players: simpPlayers,
+			},
+		};
+		console.log("Player list is: " + JSON.stringify(response));
+		this.room.broadcast(JSON.stringify(response));
+	}
+
 	async onMessage(request: string) {
 		const requestJson = JSON.parse(request);
 		const message = requestJson.message;
-		console.log("Got to message in Speed Words");
 		if (message === "peel") {
 			this.peel();
 		}
@@ -104,6 +112,40 @@ export default class SpeedWordsServer implements Party.Server {
 		if (message === "backspace") {
 			this.backspace(requestJson.data);
 		}
+	}
+
+	async onClose(connection: Party.Connection) {
+		// Handle the disconnection event
+		console.log("Client disconnected:", connection.id);
+		this.players = this.players.filter(
+			(player) => player.connection.id !== connection.id,
+		);
+
+		const simpPlayers = this.players.map((player) => ({
+			name: player.name,
+			color: player.color,
+		}));
+		const response = {
+			message: "playerList",
+			data: {
+				players: simpPlayers,
+			},
+		};
+		console.log("Player list is: " + JSON.stringify(response));
+		this.room.broadcast(JSON.stringify(response));
+	}
+
+	extractQueryParams(urlString: string): {
+		_pk: string | null;
+		name: string | null;
+	} {
+		const url = new URL(urlString);
+		const params = new URLSearchParams(url.search);
+
+		const _pk = params.get("_pk");
+		const name = params.get("name");
+
+		return { _pk, name };
 	}
 
 	startGame() {
@@ -126,10 +168,6 @@ export default class SpeedWordsServer implements Party.Server {
 				},
 			};
 			connection.send(JSON.stringify(response));
-			this.players.push({
-				color: color,
-				connection: connection,
-			});
 		}
 		this.broadcastLettersLeft();
 	}
