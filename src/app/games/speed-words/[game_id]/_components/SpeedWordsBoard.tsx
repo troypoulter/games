@@ -7,6 +7,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
+import { getBgColor } from "@/app/functions/color-functions";
+
 export const getCellLetter = (
 	rowNum: any,
 	colNum: any,
@@ -28,7 +30,7 @@ const Cell = (props: { isSelected: any; letter: any }) => {
 		>
 			{props.letter != "" && (
 				<div
-					className={`text-m flex h-8 w-8 items-center justify-center rounded-sm ${props.letter.color} font-bold`}
+					className={`text-m flex h-8 w-8 items-center justify-center rounded-sm ${getBgColor(props.letter.color)} font-bold`}
 				>
 					{props.letter.letter}
 				</div>

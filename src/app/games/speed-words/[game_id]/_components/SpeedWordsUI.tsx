@@ -11,10 +11,9 @@
 import usePartySocket from "partysocket/react";
 import { useEffect, useRef, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-// import SpotifyPlayer from "react-spotify-web-playback";
 import { PARTYKIT_HOST } from "@/lib/env";
 
+import Lobby from "./Lobby";
 import SpeedWordsBoard from "./SpeedWordsBoard";
 import { Keyboard } from "./SpeedWordsKeyboard";
 
@@ -30,11 +29,14 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 	const [gameRunning, setGameRunning] = useState<boolean>(false);
 	const [lettersLeft, setLettersLeft] = useState<number>(0);
 	const [color, setColor] = useState<string>();
+	const [players, setPlayers] = useState<any[]>([]);
+	const name = localStorage.getItem("userName");
 
 	const socket = usePartySocket({
 		host: PARTYKIT_HOST,
 		room: gameId,
 		party: "speedwords",
+		query: { name: name },
 	});
 
 	useEffect(() => {
@@ -65,6 +67,12 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 		if (mess.message === "letterGridUpdate") {
 			setLetterGrid(mess.data.letterGrid);
 		}
+		if (mess.message === "playerList") {
+			// console.log("Got to joined");
+			const newPlayers = mess.data.players;
+			console.log("New Players: " + JSON.stringify(newPlayers));
+			setPlayers(newPlayers);
+		}
 	};
 
 	const handlePeel = (letters: any) => {
@@ -82,11 +90,6 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 	const sendPeel = () => {
 		const data = { uniqueId: 123 };
 		socket.send(JSON.stringify({ message: "peel", data: data }));
-	};
-
-	const sendStartGame = () => {
-		const data = { uniqueId: 123 };
-		socket.send(JSON.stringify({ message: "startGame", data: data }));
 	};
 
 	const sendBackSpace = () => {
@@ -124,21 +127,7 @@ export default function SpeedWordsUI({ gameId }: { gameId: string }) {
 
 	return (
 		<div>
-			{!gameRunning && (
-				<>
-					<div className="flex items-center justify-center">
-						Welcome to Speed Words
-					</div>
-					<div className="mt-6 flex flex-col items-center">
-						<Button
-							className={`transform bg-green-500 px-4 hover:bg-green-500/90`}
-							onClick={() => sendStartGame()}
-						>
-							<div className="flex items-center">Start Round</div>
-						</Button>
-					</div>
-				</>
-			)}
+			{!gameRunning && <Lobby socket={socket} players={players} />}
 			{gameRunning && (
 				<>
 					<div ref={divRef} className="h-[400px] overflow-scroll">
