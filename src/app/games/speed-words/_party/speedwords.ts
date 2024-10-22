@@ -153,21 +153,22 @@ export default class SpeedWordsServer implements Party.Server {
 		this.letterPool = initLetterPool();
 		const initLetter = getLetters(1, this.letterPool);
 		this.letterGrid = initLetterGrid(initLetter[0]);
-		const connections: Iterable<Party.Connection<unknown>> =
-			this.room.getConnections();
-		const connectionsArray = Array.from(connections);
-		for (const connection of connectionsArray) {
-			const color = getColor(this.colors);
+		// const connections: Iterable<Party.Connection<unknown>> =
+		// 	this.room.getConnections();
+		// const connectionsArray = Array.from(connections);
+		for (const player of this.players) {
+			// const color = getColor(this.colors);
+
 			const newLetters = getLetters(7, this.letterPool);
 			const response = {
 				message: "startGame",
 				data: {
 					letterGrid: this.letterGrid,
 					letters: newLetters,
-					color: color,
+					color: player.color,
 				},
 			};
-			connection.send(JSON.stringify(response));
+			player.connection.send(JSON.stringify(response));
 		}
 		this.broadcastLettersLeft();
 	}
@@ -194,12 +195,14 @@ export default class SpeedWordsServer implements Party.Server {
 
 	sendExistingLetterBack(color: string, letterFromGrid: string) {
 		// Send letter back to original player
+		console.log("Sending letter back: " + letterFromGrid);
 		if (letterFromGrid && letterFromGrid != "") {
 			for (const player of this.players) {
 				const response = {
 					message: "peel",
 					data: { letters: [letterFromGrid] },
 				};
+				console.log("Sending letter back: " + letterFromGrid + color);
 				if (player.color == color) {
 					player.connection.send(JSON.stringify(response));
 				}
@@ -212,6 +215,7 @@ export default class SpeedWordsServer implements Party.Server {
 		const selectedCell = data.selectedCell;
 		const letterGrid = this.letterGrid;
 		const letterFromGrid = letterGrid[selectedCell[0]][selectedCell[1]]?.letter;
+		console.log("Backspace Letter: " + letterFromGrid);
 		this.sendExistingLetterBack(data.color, letterFromGrid);
 		letterGrid[selectedCell[0]] = letterGrid[selectedCell[0]] ?? {};
 		letterGrid[selectedCell[0]][selectedCell[1]] = null;

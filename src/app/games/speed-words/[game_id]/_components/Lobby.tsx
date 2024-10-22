@@ -24,15 +24,32 @@ export default function Lobby({
 
 	return (
 		<>
-			<div className="flex items-center justify-center">
-				Welcome to Speed Words
-			</div>
-			<div>Players</div>
-			{players.map((player: any, idx: number) => (
-				<div className={getTextColor(player.color)} key={idx}>
-					{player.name}
+			<div className="items-center justify-center">
+				<div className="row flex items-center justify-center">
+					Welcome to Speed Words
 				</div>
-			))}
+				<div className="row flex items-center justify-center">
+					Room: {socket.room}
+				</div>
+				<div className="row flex items-center justify-center">
+					<div>Players</div>
+				</div>
+				{players.map((player: any, idx: number) => (
+					<div className={`row flex items-center justify-center `} key={idx}>
+						<div className={getTextColor(player.color)}>{player.name}</div>
+					</div>
+				))}
+			</div>
+			{/* <div className="flex-direction: row flex items-center justify-center">
+				<div>Welcome to Speed Words</div>
+				<div>Players</div>
+				{players.map((player: any, idx: number) => (
+					<div className={getTextColor(player.color)} key={idx}>
+						{player.name}
+					</div>
+				))}
+			</div> */}
+
 			<div className="mt-6 flex flex-col items-center">
 				<Button
 					className={`transform bg-green-500 px-4 hover:bg-green-500/90`}
