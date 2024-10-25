@@ -307,9 +307,7 @@ export default class SpeedWordsServer implements Party.Server {
 			const matchingColor = Object.keys(colorCounts).find(
 				(color) => color === player.color,
 			);
-			if (player.active) {
-				player.score = 0;
-			}
+			if (player.active) player.score = 0;
 			if (matchingColor) {
 				player.score = colorCounts[matchingColor];
 				if (player.color == data.color) {
