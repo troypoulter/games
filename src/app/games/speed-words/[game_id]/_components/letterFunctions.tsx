@@ -255,7 +255,7 @@ export const initLetterPool = () => {
 		"S",
 	];
 	console.log("Initing Letter Pool");
-	return tinyLetters;
+	return fullLetters;
 };
 
 export const initLetterGrid = (letter: string) => {
